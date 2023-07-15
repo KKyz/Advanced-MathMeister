@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/TitleScreen.unity
+    guid: 29861f48f4e55ce49b9e85fb6347eed1
+  - enabled: 1
+    path: Assets/Scenes/TimeTrial.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/OptionsScreen.unity
+    guid: 8d97874fd8828ef41bd872e56e0a6c1f
+  - enabled: 1
+    path: Assets/Scenes/Credits.unity
+    guid: 2a8fb9d427ea66e4c82431cb3e2cbdeb
+  - enabled: 1
+    path: Assets/Scenes/ExtraScreen.unity
+    guid: 5ba6731e66f7d8547b73493878cc8b41
+  - enabled: 1
+    path: Assets/Scenes/ThankYouMessage.unity
+    guid: 9114593f63abead45b160dbb65f49bd8
+  - enabled: 1
+    path: Assets/Scenes/Level1.unity
+    guid: 76b672b09f8e5834eb43aa4e3db11f6c
+  - enabled: 1
+    path: Assets/Scenes/Level2.unity
+    guid: fc32dfdc5b5bff34b951d03e79d5b26d
+  - enabled: 1
+    path: Assets/Scenes/Level3.unity
+    guid: f04d4f24c0148a348b089419ae428eee
+  - enabled: 1
+    path: Assets/Scenes/Level4.unity
+    guid: aa336042841b2f14da659e02b765d85f
+  - enabled: 1
+    path: Assets/Scenes/HelpScreen.unity
+    guid: a12ee16c41ba30b4e867e0bc6da52931
+  m_configObjects: {}
