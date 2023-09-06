@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ScrollingImage : MonoBehaviour
 {
+    //Literally just scrolls the BG on the title screen.
+    //Nothing more to see here.
     private Renderer quadRenderer;
 
     public float scrollSpeed = 0.3f;

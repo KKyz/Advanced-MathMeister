@@ -7,19 +7,22 @@ using B83.LogicExpressionParser;
 
 public class EquateScore : MonoBehaviour
 {
-    public Text playerCounter;
-    public Text playerUncalculatedCounter;
-    public static List<string> calcs = new List<string>();
-    public static int output;
-    public static string calcsString;
-    private Parser parser = new Parser();
+    private Text playerCounter;
+    private Text playerUncalculatedCounter;
+    public List<string> calcs = new();
+    public int output;
+    public string calcsString;
+    private Parser parser = new();
     private NumberExpression exp;
 
     void Start()
     {
+        //Initialise output and calc string to be 0
         output = 0;
         calcsString = "0+0";
-
+        playerCounter = GameObject.Find("LabelCanvas").transform.Find("CalculatedNumberCounter").GetComponent<Text>();
+        playerUncalculatedCounter = GameObject.Find("LabelCanvas").transform.Find("UncalculatedNumberCounter").GetComponent<Text>();
+        
         for (int i = 0; i <= calcs.Count - 1; i++){calcs.RemoveAt(i);}
     }
 
@@ -44,8 +47,14 @@ public class EquateScore : MonoBehaviour
             playerCounter.text = "0";
         }
 
-        if(calcsString != "0+0"){playerUncalculatedCounter.text = calcsString;}
-        else{playerUncalculatedCounter.text = "0";}
+        if (calcsString != "0+0")
+        {
+            playerUncalculatedCounter.text = calcsString;
+        }
+        else
+        {
+            playerUncalculatedCounter.text = "0";
+        }
 
         if (calcs.Count >= 1)
         {
@@ -54,8 +63,10 @@ public class EquateScore : MonoBehaviour
                 calcs.Remove(calcs[0]);
             }
         }
-        
+
         if (calcs.Count <= 0)
-        {calcsString = "0+0";}
+        {
+            calcsString = "0+0";
+        }
     }
 }

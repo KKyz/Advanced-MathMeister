@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHandler
 {
@@ -10,6 +9,8 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
     private float pitchValue = 1.0f;
     public AudioClip selectAudio, removeAudio;
     private string output;
+    private SpawnBlocks spawnBlocks;
+    private EquateScore equateScore;
     [HideInInspector]
     public string myString;
 
@@ -21,17 +22,18 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
 
     private GameObject blockParticle;
 
-    public static List<GameObject> SelectedBlocks = new List<GameObject>();
+    public List<GameObject> SelectedBlocks = new();
 
     public bool selected;
     public bool lockBlock = false;
-    public static bool firstSelect, canBeSelected;
+    public bool firstSelect;
     private bool isBeingSelected, isBeingRemoved;
+    public string animationState;
 
 
     public int myID;
     public int myTrash;
-    public static int IDCounter;
+    public int IDCounter;
 
     private Animator blockAnim;
     private SpriteRenderer spriteRenderer;
@@ -48,7 +50,12 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         firstSelect = true;
         isBeingSelected = false;
         isBeingRemoved = false;
+        animationState = "Idle";
 
+        var spawner = transform.parent;
+        equateScore = spawner.GetComponent<EquateScore>();
+        spawnBlocks = spawner.GetComponent<SpawnBlocks>();
+        
         blockAnim = GetComponent<Animator>();
         myString = gameObject.GetComponent<AssignString>().blockStr;
         blockAnim.Play("Idle");
@@ -87,7 +94,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
     {
         if (!selected && !isBeingRemoved)
         {
-            if (SelectedBlocks.Count <= 6 && canBeSelected)
+            if (SelectedBlocks.Count <= 6 && spawnBlocks.canBeSelected)
             {
                 if (firstSelect && gameObject.tag != "Operation" && SelectedBlocks.Count < 1)
                 {isBeingSelected = true; AddBlock();}
@@ -110,7 +117,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         {
             if (SelectedBlocks.Contains(gameObject))
             {
-                SpawnBlocks.RemoveBlock(myID, false);
+                spawnBlocks.RemoveBlock(myID, false);
                 audioData.PlayOneShot(removeAudio);
                 isBeingRemoved = true;
             }
@@ -146,7 +153,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         myID = IDCounter;
 
         SelectedBlocks.Add(gameObject);
-        EquateScore.calcs.Add(myString);
+        equateScore.calcs.Add(myString);
 
         selectSphere = Instantiate(Sphere, gameObject.transform.position, Quaternion.identity);
         selectSphere.transform.SetParent(gameObject.transform);

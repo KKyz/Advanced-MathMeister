@@ -5,21 +5,20 @@ using UnityEngine.SceneManagement;
 
 public class SceneSelect : MonoBehaviour
 {
-
-    public GameObject whiteFade;
+    
     private int SceneInt;
 
     public void LoadScene(int SceneNumber)
     {
         SceneInt = SceneNumber;
+        StartCoroutine(Fade.FadeIn());
         StartCoroutine(TransitionToScene());
 
     }
 
     IEnumerator TransitionToScene()
     {
-        whiteFade.GetComponent<Animator>().Play("FadeOut");
-        yield return new WaitForSeconds(2.5f);
+        yield return new WaitForSeconds(1.1f);
         SceneManager.LoadScene(SceneInt);
     }
 }

@@ -12,12 +12,17 @@ public class ShowScore : MonoBehaviour
     private float timerInt;
     private Text playerScoreText;
     public bool canReset;
+    private GameManager gameManager;
 
     void Start()
     {
+        gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
         playerScoreText = gameObject.GetComponent<Text>();
 
-        if (canReset){playerScore = 0;} 
+        if (canReset)
+        {
+            playerScore = 0;
+        } 
     }
 
     void Update()
@@ -25,27 +30,27 @@ public class ShowScore : MonoBehaviour
 
         timerInt = Timer.GetComponent<CountdownTimerScript>().currentCountdownTime;
         
-        if (timerInt < 30 && SelectTargetNumber.scoreAddFlag)
+        if (timerInt < 30 && gameManager.scoreAddFlag)
         {
             AddPoints(100);
         }
 
-        if (timerInt >= 30 && timerInt < 60 && SelectTargetNumber.scoreAddFlag)
+        if (timerInt >= 30 && timerInt < 60 && gameManager.scoreAddFlag)
         {
             AddPoints(150);
         }
 
-        if (timerInt >= 60 && timerInt < 90 && SelectTargetNumber.scoreAddFlag)
+        if (timerInt >= 60 && timerInt < 90 && gameManager.scoreAddFlag)
         {
             AddPoints(200);
         }
 
-        if (timerInt >= 90 && timerInt < 120 && SelectTargetNumber.scoreAddFlag)
+        if (timerInt >= 90 && timerInt < 120 && gameManager.scoreAddFlag)
         {
             AddPoints(250);
         }
 
-        if (timerInt >= 120 && SelectTargetNumber.scoreAddFlag)
+        if (timerInt >= 120 && gameManager.scoreAddFlag)
         {
             AddPoints(350);
         }
@@ -59,7 +64,7 @@ public class ShowScore : MonoBehaviour
         Sparks = Instantiate(SparksParticle, gameObject.transform.position, Quaternion.identity);
         Sparks.transform.SetParent(null);
         playerScore += points;
-        SelectTargetNumber.scoreAddFlag = false;
+        gameManager.scoreAddFlag = false;
         Destroy(Sparks, 2f);
     }
 }

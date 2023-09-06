@@ -1,38 +1,37 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SpawnBlocks : MonoBehaviour
 {
     public int width, height;
-    private int RandBlock1, RandBlock2, RandTrash;
     public GameObject tilePrefab, destroyParticlePrefab, LinePrefab;
-    public static GameObject destroyParticlePrefabS;
     public GameObject[] Blocks;
-    private BackgroundTile[,] allTiles;
     public static GameObject[,] allBlocks;
+    public bool canBeSelected;
+
+    private int RandBlock1, RandBlock2, RandTrash;
+    private EquateScore equateScore;
     private GameObject currentBlock, currentLine;
     private Vector2 tempPosition;
+    private static GameObject destroyParticlePrefabS;
     private GameObject backgroundTile;
     private static GameObject destroyParticle;
-    public static bool canStaticSetUp;
+    private static bool canStaticSetUp;
     private Color red, blue;
-    
-    [HideInInspector]
-    public DrawLine lineDrawer;
-    
-    [HideInInspector]
-    public SwipeBlocks swipeBlocks;
-    
+    private DrawLine lineDrawer;
+    private SwipeBlocks swipeBlocks;
+    private GameManager gameManager;
     
     void Start()
     {
+        gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
+        equateScore = GetComponent<EquateScore>();
         lineDrawer = GetComponent<DrawLine>();
-        swipeBlocks = GetComponent<SwipeBlocks>();
         destroyParticlePrefabS = destroyParticlePrefab;
         canStaticSetUp = false;
-        allTiles = new BackgroundTile[width,height];
+        canBeSelected = false;
         allBlocks = new GameObject[width,height];
         SetUp(width, height);
     }
@@ -40,9 +39,11 @@ public class SpawnBlocks : MonoBehaviour
     public void SetUp(int width, int height)
     {
         canStaticSetUp = false;
-        SwipeBlocks.canBeSelected = true;
+        canBeSelected = true;
         foreach (Transform child in gameObject.transform)
-        {Destroy(child.gameObject);}
+        {
+            Destroy(child.gameObject);
+        }
 
         for (int i = 0; i < width; i++)
         {
@@ -64,6 +65,7 @@ public class SpawnBlocks : MonoBehaviour
                 currentBlock.GetComponent<Animator>().Play("GrowBlock");
                 currentBlock.transform.SetParent(gameObject.transform);
                 currentBlock.name = "(" + i + "," + j + ")";
+                swipeBlocks = currentBlock.GetComponent<SwipeBlocks>();
 
                 if (SceneManager.GetActiveScene().name == "Level4")
                 {
@@ -101,7 +103,7 @@ public class SpawnBlocks : MonoBehaviour
     IEnumerator StaticSetUp(int width, int height)
     {
         canStaticSetUp = false;
-        SwipeBlocks.canBeSelected = true;
+        canBeSelected = true;
         tempPosition = new Vector2(width, height);
 
         RandBlock1 = Random.Range(0, 100);
@@ -150,62 +152,68 @@ public class SpawnBlocks : MonoBehaviour
         canStaticSetUp = true;
     }
 
-    public static void RemoveBlock(int index, bool isDelete)
+    public void RemoveBlock(int index, bool isDelete)
     {
 
-        if (EquateScore.calcs.Count > 0)
+        if (equateScore.calcs.Count > 0)
         {
             if (isDelete)
             {
-                for (int f = EquateScore.calcs.Count - 1; f >= 0; f--)
-                {EquateScore.calcs.Remove(EquateScore.calcs[f]);}
+                for (int f = equateScore.calcs.Count - 1; f >= 0; f--)
+                {
+                    equateScore.calcs.Remove(equateScore.calcs[f]);
+                }
 
-                EquateScore.calcsString = "0+0";
+                equateScore.calcsString = "0+0";
             }
 
             else
             {
-                for (int i = EquateScore.calcs.Count - 1; i >= index - 1; i--)
-                {EquateScore.calcs.RemoveAt(i);}
+                for (int i = equateScore.calcs.Count - 1; i >= index - 1; i--)
+                {
+                    equateScore.calcs.RemoveAt(i);
+                }
             }
         }
 
-        if (SwipeBlocks.SelectedBlocks.Count > 0)
+        if (swipeBlocks.SelectedBlocks.Count > 0)
         {
-            for (int i = SwipeBlocks.SelectedBlocks.Count - 1; i >= index - 1; i--)
+            for (int i = swipeBlocks.SelectedBlocks.Count - 1; i >= index - 1; i--)
             { 
-                for (int f = SwipeBlocks.SelectedBlocks[i].transform.childCount - 1; f >= 0; f--)
-                {Destroy(SwipeBlocks.SelectedBlocks[i].transform.GetChild(f).gameObject);}
+                for (int f = swipeBlocks.SelectedBlocks[i].transform.childCount - 1; f >= 0; f--)
+                {Destroy(swipeBlocks.SelectedBlocks[i].transform.GetChild(f).gameObject);}
 
-                var blockColor = SwipeBlocks.SelectedBlocks[i].GetComponent<SwipeBlocks>().myColor;
-                SwipeBlocks.SelectedBlocks[i].GetComponent<SpriteRenderer>().material.SetColor("_Color", blockColor);
-                SwipeBlocks.SelectedBlocks[i].GetComponent<SwipeBlocks>().selected = false;
-                SwipeBlocks.IDCounter -= 1;
+                var blockColor = swipeBlocks.SelectedBlocks[i].GetComponent<SwipeBlocks>().myColor;
+                swipeBlocks.SelectedBlocks[i].GetComponent<SpriteRenderer>().material.SetColor("_Color", blockColor);
+                swipeBlocks.SelectedBlocks[i].GetComponent<SwipeBlocks>().selected = false;
+                swipeBlocks.IDCounter -= 1;
             }
 
             if (isDelete)
             {
                 {
-                    SwipeBlocks.canBeSelected = false;
-                    for (int j = SwipeBlocks.SelectedBlocks.Count - 1; j >= index - 1; j--)
+                    canBeSelected = false;
+                    for (int j = swipeBlocks.SelectedBlocks.Count - 1; j >= index - 1; j--)
                     {
-                        destroyParticle = Instantiate(destroyParticlePrefabS, SwipeBlocks.SelectedBlocks[j].gameObject.transform.position, Quaternion.identity);
-                        destroyParticle.transform.SetParent(SwipeBlocks.SelectedBlocks[j].gameObject.transform);
+                        destroyParticle = Instantiate(destroyParticlePrefabS, swipeBlocks.SelectedBlocks[j].gameObject.transform.position, Quaternion.identity);
+                        destroyParticle.transform.SetParent(swipeBlocks.SelectedBlocks[j].gameObject.transform);
 
-                        if (SwipeBlocks.SelectedBlocks[j].GetComponent<SwipeBlocks>().myColor != Color.white)
-                        {UIFunctions.trashCounter += SwipeBlocks.SelectedBlocks[j].GetComponent<SwipeBlocks>().myTrash;}
+                        if (swipeBlocks.SelectedBlocks[j].GetComponent<SwipeBlocks>().myColor != Color.white)
+                        {
+                            gameManager.trashCounter += swipeBlocks.SelectedBlocks[j].GetComponent<SwipeBlocks>().myTrash;
+                        }
         
-                        Destroy(SwipeBlocks.SelectedBlocks[j].gameObject, 1);
-                        SwipeBlocks.SelectedBlocks[j].GetComponent<Animator>().Play("ShrinkBlock");
-                        SwipeBlocks.IDCounter = 0;
+                        Destroy(swipeBlocks.SelectedBlocks[j].gameObject, 1);
+                        swipeBlocks.SelectedBlocks[j].GetComponent<Animator>().Play("ShrinkBlock");
+                        swipeBlocks.IDCounter = 0;
                     }
                 }
             }
 
             else
             {
-                for (int i = SwipeBlocks.SelectedBlocks.Count - 1; i >= index - 1; i--)
-                {SwipeBlocks.SelectedBlocks.RemoveAt(i);}
+                for (int i = swipeBlocks.SelectedBlocks.Count - 1; i >= index - 1; i--)
+                {swipeBlocks.SelectedBlocks.RemoveAt(i);}
             }
         }
     }
@@ -216,26 +224,27 @@ public class SpawnBlocks : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (allBlocks[i, 3] == null && canStaticSetUp == true && transform.childCount < 40)
+                if (allBlocks[i, 3] == null && canStaticSetUp && transform.childCount < 40)
                 {
                     StartCoroutine(StaticSetUp(i, 3));
                 }
             }
         }
 
-        for (int j = 0; j <= SwipeBlocks.SelectedBlocks.Count - 1; j++)
+        for (int j = 0; j <= swipeBlocks.SelectedBlocks.Count - 1; j++)
         {
-            if (SwipeBlocks.SelectedBlocks[j] == null){SwipeBlocks.SelectedBlocks.Remove(SwipeBlocks.SelectedBlocks[j]);}
+            if (swipeBlocks.SelectedBlocks[j] == null){swipeBlocks.SelectedBlocks.Remove(swipeBlocks.SelectedBlocks[j]);}
         }
 
-        if (SwipeBlocks.SelectedBlocks.Count >= 2 && SwipeBlocks.SelectedBlocks[SwipeBlocks.SelectedBlocks.Count - 1] != null && SwipeBlocks.SelectedBlocks[SwipeBlocks.SelectedBlocks.Count - 1].GetComponent<SwipeBlocks>().myID > 1 && SwipeBlocks.SelectedBlocks[SwipeBlocks.SelectedBlocks.Count - 1].transform.childCount < 3)
+        if (swipeBlocks.SelectedBlocks.Count >= 2 && swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1] != null && swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].GetComponent<SwipeBlocks>().myID > 1 && swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].transform.childCount < 3)
         {
-            if(!SwipeBlocks.SelectedBlocks[SwipeBlocks.SelectedBlocks.Count - 1].GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("ShrinkBlock"))
+            if(!swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("ShrinkBlock"))
             {
-                currentLine = Instantiate(LinePrefab, SwipeBlocks.SelectedBlocks[SwipeBlocks.SelectedBlocks.Count - 1].transform.position, Quaternion.identity);
-                currentLine.transform.SetParent(SwipeBlocks.SelectedBlocks[SwipeBlocks.SelectedBlocks.Count - 1].transform);
-                currentLine.GetComponent<DrawLine>().origin = SwipeBlocks.SelectedBlocks[SwipeBlocks.SelectedBlocks.Count - 1].gameObject.transform.transform;
-                currentLine.GetComponent<DrawLine>().destination = SwipeBlocks.SelectedBlocks[SwipeBlocks.SelectedBlocks.Count - 2].gameObject.transform.transform;
+                currentLine = Instantiate(LinePrefab, swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].transform.position, Quaternion.identity);
+                currentLine.transform.SetParent(swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].transform);
+                DrawLine currentLinePoints = currentLine.GetComponent<DrawLine>();
+                currentLinePoints.origin = swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].gameObject.transform.transform;
+                currentLinePoints.destination = swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 2].gameObject.transform.transform;
             }
         }
 

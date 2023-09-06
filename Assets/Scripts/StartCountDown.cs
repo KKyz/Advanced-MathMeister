@@ -1,22 +1,25 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class StartCountDown : MonoBehaviour
 {
+    public float timeRemaining;
     public Text countDownText;
-    public static float timeRemaining;
-    public GameObject CountdownFade;
+    public SpawnBlocks spawnBlocks;
+    public CountdownTimerScript countdownTimer;
 
-    void Awake()
+    private void Awake()
     {
+        var gameInterface = GameObject.Find("GameInterface").transform;
+        spawnBlocks = gameInterface.Find("Spawner").GetComponent<SpawnBlocks>();
+        countdownTimer = gameInterface.Find("LabelCanvas").Find("TimeCounter").GetComponent<CountdownTimerScript>();
         timeRemaining = 3f;
+        countDownText = GetComponent<Text>();
         gameObject.SetActive(true);
         BlockOff();
     }
-    void Update()
+    private void Update()
     {
         if (timeRemaining > 0)
         {
@@ -27,24 +30,27 @@ public class StartCountDown : MonoBehaviour
         else
         {
             timeRemaining = 0;
-            CountdownTimerScript.countdownTimerIsRunning = true;
-            CountdownFade.GetComponent<Animator>().Play("SemiFadeOut");
+            countdownTimer.countdownTimerIsRunning = true;
+            StartCoroutine(Fade.SemiFadeOut());
             gameObject.SetActive(false);
-            SwipeBlocks.canBeSelected = true;
-            
+            spawnBlocks.canBeSelected = true;
+
             if (SceneManager.GetActiveScene().name == "Level4")
-            {CPUCounter.canAct = true;}
+            {
+                CPUCounter.canAct = true;
+            }
         }
     }
 
-    public void BlockOff()
-    {
-       CountdownFade.GetComponent<Animator>().Play("SemiFadeIn");   
-       CountdownTimerScript.countdownTimerIsRunning = false;
-       SwipeBlocks.canBeSelected = false;
+    private void BlockOff()
+    { 
+        countdownTimer.countdownTimerIsRunning = false;
+       spawnBlocks.canBeSelected = false;
 
        if (SceneManager.GetActiveScene().name == "Level4")
-        {CPUCounter.canAct = false;} 
+       {
+           CPUCounter.canAct = false;
+       }
     }
     void DisplayTime(float timeToDisplay)
     {

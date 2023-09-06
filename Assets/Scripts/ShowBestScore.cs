@@ -6,14 +6,24 @@ using UnityEngine.UI;
 public class ShowBestScore : MonoBehaviour
 {
     public static int displayBestScore;
-    private Text BestScoreCounter;
-    public string bestScore;
+    private Text bestScoreCounter;
+    public bestScore thisBestScore;
+    
+    public enum bestScore
+    {
+        TimeTrial, 
+        Level1,
+        Level2,
+        Level3,
+        Level4,
+        Level5
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        BestScoreCounter = gameObject.GetComponent<Text>();
-        displayBestScore = PlayerPrefs.GetInt(bestScore, 1000);
-        BestScoreCounter.text = displayBestScore.ToString("00000");
+        bestScoreCounter = gameObject.GetComponent<Text>();
+        displayBestScore = PlayerPrefs.GetInt(thisBestScore.ToString(), 1000);
+        bestScoreCounter.text = displayBestScore.ToString("00000");
     }
 }

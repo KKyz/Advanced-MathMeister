@@ -61,11 +61,11 @@ public class CPUCounter : MonoBehaviour
                             var TrashToThrow = Random.Range(1, 3);
                             if (TrashToThrow == 1)
                             {
-                                GameObject.Find("ButtonCanvas").GetComponent<UIFunctions>().playerNumber += 5;
+                                GameObject.Find("ButtonCanvas").GetComponent<GameManager>().playerNumber += 5;
                             }
                             else if (TrashToThrow != 1)
                             {
-                                GameObject.Find("ButtonCanvas").GetComponent<UIFunctions>().playerNumber -= 5;
+                                GameObject.Find("ButtonCanvas").GetComponent<GameManager>().playerNumber -= 5;
                             }
                             exxplosion = Instantiate(Explosion, GameObject.Find("YourNumberCounter").transform.position, Quaternion.identity);
                             Destroy(exxplosion, 2f);
@@ -86,11 +86,11 @@ public class CPUCounter : MonoBehaviour
                             var TrashToThrow = Random.Range(1, 3);
                             if (TrashToThrow == 1)
                             {
-                                GameObject.Find("ButtonCanvas").GetComponent<UIFunctions>().playerNumber += 5;
+                                GameObject.Find("ButtonCanvas").GetComponent<GameManager>().playerNumber += 5;
                             }
                             else if (TrashToThrow != 1)
                             {
-                                GameObject.Find("ButtonCanvas").GetComponent<UIFunctions>().playerNumber -= 5;
+                                GameObject.Find("ButtonCanvas").GetComponent<GameManager>().playerNumber -= 5;
                             }
                             exxplosion = Instantiate(Explosion, GameObject.Find("YourNumberCounter").transform.position, Quaternion.identity);
                             Destroy(exxplosion, 2f);

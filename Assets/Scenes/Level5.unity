@@ -160,7 +160,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 349, y: -25.27}
+  m_AnchoredPosition: {x: 349, y: 7}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &163787065
@@ -497,7 +497,7 @@ RectTransform:
   m_GameObject: {fileID: 416427503}
   m_LocalRotation: {x: 0.71401983, y: 0.696317, z: 0.052211095, w: 0.050916173}
   m_LocalPosition: {x: 0, y: 0, z: 1391}
-  m_LocalScale: {x: 943.87115, y: 943.87115, z: 943.87115}
+  m_LocalScale: {x: 943.87115, y: 943.87115, z: 943.8712}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1513743595}
@@ -505,7 +505,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 171.636, z: 91.438}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1, y: 104}
+  m_AnchoredPosition: {x: 12, y: 104}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &416427505
@@ -743,6 +743,11 @@ PrefabInstance:
       propertyPath: bestScore
       value: TimeTrial
       objectReference: {fileID: 0}
+    - target: {fileID: 2268457899075786685, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2268457899213506934, guid: deab82f62d01e7b4db18fa16a7ef8a21,
         type: 3}
       propertyPath: m_IsActive
@@ -884,12 +889,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1513743594}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1513743597 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2268457898927139446, guid: deab82f62d01e7b4db18fa16a7ef8a21,
-    type: 3}
-  m_PrefabInstance: {fileID: 1513743594}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1513743598 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2268457898173816168, guid: deab82f62d01e7b4db18fa16a7ef8a21,
@@ -1005,4 +1004,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0213329d2493984db15a097ae4153c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  copyObject: {fileID: 1513743597}
+  targetText: {fileID: 0}

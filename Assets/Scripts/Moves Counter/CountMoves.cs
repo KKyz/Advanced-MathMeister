@@ -9,9 +9,12 @@ public class CountMoves : MonoBehaviour
     public static int levelCounter;
     public Text levelCounterText, victoryLevelCounterText;
     private Text moveCounterText;
+    private GameManager gameManager;
+    
     // Start is called before the first frame update
     void Start()
     {
+        gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
         levelCounter = 1;
         moveCounter = 7;
         moveCounterText = gameObject.GetComponent<Text>();
@@ -23,10 +26,10 @@ public class CountMoves : MonoBehaviour
         levelCounterText.text = "Level "+ levelCounter.ToString();
         victoryLevelCounterText.text = "Level "+ levelCounter.ToString();
         moveCounterText.text = moveCounter.ToString();
-        if (UIFunctions.equationResetFlag)
+        if (gameManager.equationResetFlag)
         {
             moveCounter -= 1;
-            UIFunctions.equationResetFlag = false;
+            gameManager.equationResetFlag = false;
         }
     }
 }

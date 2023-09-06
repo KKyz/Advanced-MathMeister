@@ -4,18 +4,14 @@ using UnityEngine;
 
 public class PlayClickEffect : MonoBehaviour
 {
-    public GameObject ClickEffect, canvas;
-    private GameObject clickEffect;
-    private bool hasPlayed = false;
+    public GameObject ClickEffect;
 
     public void PlayCircleEffect()
     {
-        if (hasPlayed == false)
-        {
-            clickEffect = Instantiate(ClickEffect, transform.position, Quaternion.identity);
-            clickEffect.transform.SetParent(canvas.transform);
-            hasPlayed = true;
-        }
+        var canvas = GameObject.Find("Canvas").transform;
+        var thisClickEffect = Instantiate(ClickEffect, transform.position, Quaternion.identity);
+        thisClickEffect.transform.SetParent(canvas.transform);
+        thisClickEffect.transform.SetSiblingIndex(canvas.childCount - 2);
     }
 
     public void ClickedAnimation(string AnimationToPlay)
