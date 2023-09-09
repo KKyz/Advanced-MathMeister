@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class ShowScore : MonoBehaviour
@@ -9,7 +7,6 @@ public class ShowScore : MonoBehaviour
     public static int playerScore;
     public GameObject Timer, SparksParticle;
     private GameObject Sparks;
-    private float timerInt;
     private Text playerScoreText;
     public bool canReset;
     private GameManager gameManager;
@@ -27,30 +24,27 @@ public class ShowScore : MonoBehaviour
 
     void Update()
     {
-
-        timerInt = Timer.GetComponent<CountdownTimerScript>().currentCountdownTime;
-        
-        if (timerInt < 30 && gameManager.scoreAddFlag)
+        if (gameManager.currentCountdownTime < 30 && gameManager.scoreAddFlag)
         {
             AddPoints(100);
         }
 
-        if (timerInt >= 30 && timerInt < 60 && gameManager.scoreAddFlag)
+        if (gameManager.currentCountdownTime >= 30 && gameManager.currentCountdownTime < 60 && gameManager.scoreAddFlag)
         {
             AddPoints(150);
         }
 
-        if (timerInt >= 60 && timerInt < 90 && gameManager.scoreAddFlag)
+        if (gameManager.currentCountdownTime >= 60 && gameManager.currentCountdownTime < 90 && gameManager.scoreAddFlag)
         {
             AddPoints(200);
         }
 
-        if (timerInt >= 90 && timerInt < 120 && gameManager.scoreAddFlag)
+        if (gameManager.currentCountdownTime >= 90 && gameManager.currentCountdownTime < 120 && gameManager.scoreAddFlag)
         {
             AddPoints(250);
         }
 
-        if (timerInt >= 120 && gameManager.scoreAddFlag)
+        if (gameManager.currentCountdownTime >= 120 && gameManager.scoreAddFlag)
         {
             AddPoints(350);
         }

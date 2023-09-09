@@ -12,9 +12,6 @@ public class GameManager : MonoBehaviour
     public float currentCountdownTime = 150f;
 
     [Header("Game Objects")]
-    public GameObject FailCanvas;
-    public GameObject CountDownObject;
-    public GameObject CPU;
     public GameObject StartCountDownText;
     public GameObject ChangeParticle;
     public GameObject sparkleParticle; 
@@ -23,7 +20,8 @@ public class GameManager : MonoBehaviour
     [Header("Game Audio")] 
     public AudioClip equateSound;
     public AudioClip shuffleSound;
-    public AudioClip CountdownBGM;
+    public AudioClip StartCountdownSound;
+    public AudioClip FinalCountdownSound;
     public AudioClip VictoryBGM;
     public AudioClip LevelBGM;
     public AudioClip FailBGM;
@@ -32,16 +30,15 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public bool equationResetFlag, scoreAddFlag, triggeredVictory, playerSwitch, countdownTimerIsRunning;
     [HideInInspector] public int equationCounter, trashCounter, goalInt, playerNumber, currentPlayerInt;
 
-    private bool canShuffle;
+    private bool canShuffle, countDownSoundActive;
     private AudioSource SFXSource;
     private Button shuffleButton, equateButton, trashButton;
-    private Text playerCounter, goalText, trashCountText;
+    private Text playerCounter, goalText, trashCountText, timerText;
     private ColorBlock shuffleBlock, equateBlock;
     private SpawnBlocks spawnBlocks;
     private EquateScore equateScore;
     private SwipeBlocks swipeBlocks;
     private StartCountDown startCountDown;
-    private CountdownTimerScript countdownTimer;
     private AudioSource BGMSource;
     private float bestTime, musicPos, CPCountdownTime, timeLimit, CountDownTimer;
     private int CPUTrashBest, CPUTrashLevel, CPUScoreInt, Level2Best, CPCounter, CPUTimeLevel, CPUTimeBest;
@@ -65,7 +62,6 @@ public class GameManager : MonoBehaviour
         
         equationCounter = 0;
         trashCounter = 0;
-        CountDownObject = transform.Find("LabelCanvas").Find("TimeCounter").gameObject;
         shuffleButton = transform.Find("ButtonCanvas").Find("ShuffleButton").GetComponent<Button>();
         equateButton = transform.Find("ButtonCanvas").Find("EquateButton").GetComponent<Button>();
         resultsCanvas = transform.Find("BGCanvas").Find("ResultsScreen").gameObject;
@@ -104,12 +100,10 @@ public class GameManager : MonoBehaviour
 
         spawnBlocks.canBeSelected = false;
         
-        countDownSound = false;
-        gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
-        timerAudio = gameObject.GetComponent<AudioSource>();
-        cTimerText = gameObject.GetComponent<Text>();
+        countDownSoundActive = false;
+        timerText = transform.Find("LabelCanvas").Find("TimeCounter").GetComponent<Text>();
         countdownTimerIsRunning = false;
-        DisplayTime(currentCountdownTime, cTimerText);
+        DisplayTime(currentCountdownTime, timerText);
     }
 
     public void ShuffleBlocks(float shuffleTime)
@@ -166,7 +160,8 @@ public class GameManager : MonoBehaviour
     {
         if (trashCounter != 0)
         {
-            GameObject.Find("CPUCounter").GetComponent<CPUCounter>().CPUInt += trashCounter;
+            var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
+            CPU.CPUInt += trashCounter;
 
             var explosion = Instantiate(explosionParticle, GameObject.Find("CPUCounter").transform.position, Quaternion.identity);
             trashButton.GetComponent<Animator>().Play("TrashSpinIn");
@@ -178,7 +173,8 @@ public class GameManager : MonoBehaviour
     
     public void NextLevel()
     {
-        CPU.transform.GetChild(1).GetComponent<CPUCounter>().CPULevelUp();
+        var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
+        CPU.CPULevelUp();
         //startCountdown.timeRemaining = 3f;
 
         for (int i = 0; i <= resultsCanvas.transform.childCount - 1; i++)
@@ -189,24 +185,24 @@ public class GameManager : MonoBehaviour
         StartCountDownText.SetActive(true);
         
         timeLimit = 45f;
-        CountDownObject.GetComponent<Text>().text = "00:45:0";
-        CountDownObject.GetComponent<CountdownTimerScript>().currentCountdownTime = timeLimit;
+        timerText.text = "00:45:0";
+        currentCountdownTime = timeLimit;
         
         if (SceneManager.GetActiveScene().name == "Level3")
         {
-            CPU.transform.GetChild(3).GetComponent<Text>().text = "00:45:0";
-            CPU.transform.GetChild(3).GetComponent<CPUTimer>().CPUCountdownTime = timeLimit;
-            CPUTimer.CPUcountdownTimerIsRunning = false;
+            CPU.CPUTimerText.text = "00:45:0";
+            CPU.CPUCountdownTime = timeLimit;
+            CPU.CPUcountdownTimerIsRunning = false;
             playerSwitch = true;
         }
 
         if (SceneManager.GetActiveScene().name == "Level4")
         {
-            CPU.transform.GetChild(5).GetComponent<CPUGoal>().UpdateCPUGoal(minTarget, maxTarget);
+            CPU.UpdateCPUGoal(minTarget, maxTarget);
         }
 
         playerNumber = 0;
-        CPU.transform.GetChild(1).GetComponent<CPUCounter>().CPUInt = 0;
+        CPU.CPUInt = 0;
         goalInt = Random.Range(minTarget, maxTarget);
         goalText.text = goalInt.ToString();
 
@@ -237,15 +233,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    IEnumerator PlayBGMSource()
+    public IEnumerator PlayBGMSource()
     {
         BGMSource.loop = false;
-        BGMSource.clip = CountdownBGMSource;
+        BGMSource.clip = StartCountdownSound;
         BGMSource.time = 0f;
         BGMSource.Play();
         yield return new WaitForSeconds(4f);
         BGMSource.loop = true;
-        BGMSource.clip = LevelBGMSource;
+        BGMSource.clip = LevelBGM;
         BGMSource.time = musicPos;
         BGMSource.Play();
     }
@@ -255,13 +251,13 @@ public class GameManager : MonoBehaviour
         currentCountdownTime += timeAdded;
     }
 
-    public static void DisplayTime(float timeToDisplay, Text timerCounter)
+    public void DisplayTime(float timeToDisplay, Text textToDisplay)
     {
         float minutes = Mathf.FloorToInt(timeToDisplay / 60); 
         float seconds = Mathf.FloorToInt(timeToDisplay % 60);
         float milliSeconds = (timeToDisplay % 1) * 1000;
 
-        timerCounter.text = string.Format("{0:00}:{1:00}:{2:0}", minutes, seconds, milliSeconds);
+        textToDisplay.text = string.Format("{0:00}:{1:00}:{2:0}", minutes, seconds, milliSeconds);
     }
     
     public void Update()
@@ -271,36 +267,39 @@ public class GameManager : MonoBehaviour
         if(currentCountdownTime > 0 && countdownTimerIsRunning)
         {
             currentCountdownTime -= Time.deltaTime;
-            DisplayTime(currentCountdownTime, cTimerText);
+            DisplayTime(currentCountdownTime, timerText);
         }
 
-        if(currentCountdownTime <= 0){cTimerText.text = "00:00:0"; countdownTimerIsRunning = false;}
+        if (currentCountdownTime <= 0)
+        {
+            timerText.text = "00:00:0"; countdownTimerIsRunning = false;
+        }
 
-        if (gameManager.scoreAddFlag && gameManager.equationCounter <= 5)
+        if (scoreAddFlag && equationCounter <= 5)
         {
             AddTime(7);
         }
 
-        else if (gameManager.scoreAddFlag && gameManager.equationCounter < 7)
+        else if (scoreAddFlag && equationCounter < 7)
         {
             AddTime(5);
         }
 
-        else if (gameManager.scoreAddFlag && gameManager.equationCounter >= 9)
+        else if (scoreAddFlag && equationCounter >= 9)
         {
             AddTime(3);
         }
 
-        if (currentCountdownTime <= 10 && !countDownSound)
+        if (currentCountdownTime <= 10 && !countDownSoundActive)
         {
-            timerAudio.Play();
-            countDownSound = true;
+            SFXSource.PlayOneShot(FinalCountdownSound);
+            countDownSoundActive = true;
         }
 
         if (currentCountdownTime > 10 || !countdownTimerIsRunning)
         {
-            timerAudio.Stop();
-            countDownSound = false;
+            SFXSource.Stop();
+            countDownSoundActive = false;
         }
 
         if (SceneManager.GetActiveScene().name == "Level4")
@@ -354,8 +353,6 @@ public class GameManager : MonoBehaviour
         //Time Trial Mode
         if (gameMode == GameMode.TimeTrial)
         {
-            CountDownTimer = CountDownObject.GetComponent<CountdownTimerScript>().currentCountdownTime;
-            
             if (currentPlayerInt == goalInt)
             {
                 scoreAddFlag = true;
@@ -385,8 +382,6 @@ public class GameManager : MonoBehaviour
         //Unknown Goal Mode
         if (gameMode == GameMode.Level1)
         {
-            CountDownTimer = CountDownObject.GetComponent<CountdownTimerScript>().currentCountdownTime;
-            
             if (currentPlayerInt == goalInt)
             {
                 scoreAddFlag = true;
@@ -441,9 +436,9 @@ public class GameManager : MonoBehaviour
         //CPU Time Attack Mode
         if (gameMode == GameMode.Level3)
         {
-            CountDownTimer = CountDownObject.GetComponent<CountdownTimerScript>().currentCountdownTime;
-            CPCountdownTime = CPU.transform.GetChild(3).GetComponent<CPUTimer>().CPUCountdownTime;
-            CPCounter = CPU.transform.GetChild(1).GetComponent<CPUCounter>().CPUInt;
+            var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
+            CPCountdownTime = CPU.CPUCountdownTime;
+            CPCounter = CPU.CPUInt;
             CPUWaitFade = GameObject.Find("CPUWaitFade");
 
             if (playerSwitch)
@@ -452,11 +447,11 @@ public class GameManager : MonoBehaviour
                 {
                     CPCountdownTime = timeLimit;
                     SFXSource.PlayOneShot(GoalChange, 0.5f);
-                    CPU.transform.GetChild(5).GetComponent<CPUGoal>().UpdateCPUGoal(minTarget, maxTarget);
-                    CPUCounter.canAct = true;
-                    CPUTimer.CPUcountdownTimerIsRunning = true;
+                    CPU.UpdateCPUGoal(minTarget, maxTarget);
+                    CPU.canAct = true;
+                    CPU.CPUcountdownTimerIsRunning = true;
 
-                    countdownTimer.countdownTimerIsRunning = false;
+                    countdownTimerIsRunning = false;
                     spawnBlocks.canBeSelected = false;
                     playerSwitch = false;
 
@@ -465,7 +460,7 @@ public class GameManager : MonoBehaviour
 
                 if (CountDownTimer <= 0 && !triggeredVictory)
                 {
-                    CPUCounter.canAct = false;
+                    CPU.canAct = false;
                     BGMSource.clip = FailBGM;
                     StartCoroutine(DisplayResults());
                 }
@@ -473,12 +468,12 @@ public class GameManager : MonoBehaviour
 
             if (!playerSwitch)
             {   
-                if (CPCounter == CPUGoal.CPGoal)
+                if (CPCounter == CPU.CPUGoal)
                 {
                     timeLimit -= 5f;
                     CountDownTimer = timeLimit;
                     
-                    countdownTimer.countdownTimerIsRunning = true;
+                    countdownTimerIsRunning = true;
                     spawnBlocks.canBeSelected = true;
                     playerSwitch = true;
                     SFXSource.PlayOneShot(GoalChange, 0.5f);
@@ -488,15 +483,15 @@ public class GameManager : MonoBehaviour
                     goalInt = Random.Range(minTarget, maxTarget);
                     goalText.text = goalInt.ToString();
 
-                    CPUCounter.canAct = false;
-                    CPUTimer.CPUcountdownTimerIsRunning = false;
+                    CPU.canAct = false;
+                    CPU.CPUcountdownTimerIsRunning = false;
 
                     CPUWaitFade.GetComponent<Animator>().Play("CPUWaitFadeExit");
                 }
 
                 if (CPCountdownTime <= 0 && !triggeredVictory)
                 {
-                    CPUCounter.canAct = false;
+                    CPU.canAct = false;
                     BGMSource.clip = VictoryBGM;
                     StartCoroutine(DisplayResults());
                     CPUTimeLevel += 1;
@@ -510,10 +505,10 @@ public class GameManager : MonoBehaviour
         //CPU Trash Attack Mode
         if (gameMode == GameMode.Level4)
         {
+            var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
             CPUTrashLevelText = GameObject.Find("LevelCounter");
-            CountDownTimer = CountDownObject.GetComponent<CountdownTimerScript>().currentCountdownTime;
-            CPUScoreInt = CPU.transform.GetChild(3).GetComponent<CPUScore>().Score;
-            CPCounter = CPU.transform.GetChild(1).GetComponent<CPUCounter>().CPUInt;
+            CPUScoreInt = CPU.Score;
+            CPCounter = CPU.CPUInt;
 
             CPUTrashLevelText.GetComponent<Text>().text = ("Level "+ CPUTrashLevel.ToString());
 
@@ -525,15 +520,15 @@ public class GameManager : MonoBehaviour
                 goalText.text = goalInt.ToString();
             }
 
-            if (CPCounter == CPUGoal.CPGoal)
+            if (CPCounter == CPU.CPUGoal)
             {
-                CPUScore.CPUScoreAddFlag = true;
-                CPU.transform.GetChild(5).GetComponent<CPUGoal>().UpdateCPUGoal(minTarget, maxTarget);
+                CPU.CPUScoreAddFlag = true;
+                CPU.UpdateCPUGoal(minTarget, maxTarget);
             }
 
             if (CountDownTimer <= 0 && !triggeredVictory)
             {
-                CPUCounter.canAct = false;
+                CPU.canAct = false;
 
                 if (CPUScoreInt > ShowScore.playerScore)
                 {
@@ -557,7 +552,7 @@ public class GameManager : MonoBehaviour
         //First to 1000
         if (gameMode == GameMode.Level5)
         {
-            CountDownTimer = CountDownObject.GetComponent<CountdownTimerScript>().currentCountdownTime;
+            
         }
     }
 }

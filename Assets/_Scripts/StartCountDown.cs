@@ -7,13 +7,12 @@ public class StartCountDown : MonoBehaviour
     public float timeRemaining;
     public Text countDownText;
     public SpawnBlocks spawnBlocks;
-    public CountdownTimerScript countdownTimer;
+    private GameManager gameManager;
 
     private void Awake()
     {
-        var gameInterface = GameObject.Find("GameInterface").transform;
-        spawnBlocks = gameInterface.Find("Spawner").GetComponent<SpawnBlocks>();
-        countdownTimer = gameInterface.Find("LabelCanvas").Find("TimeCounter").GetComponent<CountdownTimerScript>();
+        gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
+        spawnBlocks = gameManager.transform.Find("Spawner").GetComponent<SpawnBlocks>();
         timeRemaining = 3f;
         countDownText = GetComponent<Text>();
         gameObject.SetActive(true);
@@ -30,26 +29,28 @@ public class StartCountDown : MonoBehaviour
         else
         {
             timeRemaining = 0;
-            countdownTimer.countdownTimerIsRunning = true;
+            gameManager.countdownTimerIsRunning = true;
             StartCoroutine(Fade.SemiFadeOut());
             gameObject.SetActive(false);
             spawnBlocks.canBeSelected = true;
 
             if (SceneManager.GetActiveScene().name == "Level4")
             {
-                CPUCounter.canAct = true;
+                var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
+                CPU.canAct = true;
             }
         }
     }
 
     private void BlockOff()
     { 
-        countdownTimer.countdownTimerIsRunning = false;
+        gameManager.countdownTimerIsRunning = false;
        spawnBlocks.canBeSelected = false;
 
        if (SceneManager.GetActiveScene().name == "Level4")
        {
-           CPUCounter.canAct = false;
+           var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
+           CPU.canAct = false;
        }
     }
     void DisplayTime(float timeToDisplay)
