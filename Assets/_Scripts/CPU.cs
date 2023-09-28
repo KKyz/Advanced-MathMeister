@@ -4,6 +4,8 @@ using UnityEngine.SceneManagement;
 
 public class CPU : MonoBehaviour
 {
+    
+    //Clean this area, yuck
     public int Score;
     public float CPUCountdownTime;
     public bool CPUcountdownTimerIsRunning, CPUScoreAddFlag;
@@ -13,10 +15,9 @@ public class CPU : MonoBehaviour
     private Text scoreText;
     private GameObject CPUCounter;
     private GameManager gameManager;
-    private float TimeLeft;
 
     [HideInInspector]
-    public int maxRand, minRand, CPUInt, CPUCalcInt, RespondInt, CPULevel;
+    public int maxRand, minRand, CPUInt, CPUCalcInt, respondInt, CPULevel;
 
     public int respondPassInt;
 
@@ -83,6 +84,7 @@ public class CPU : MonoBehaviour
     
     void Update()
     {
+        //Effectively all CPU game logic is placed here
         if(CPUCountdownTime > 0 && CPUcountdownTimerIsRunning)
         {
             gameManager.DisplayTime(CPUCountdownTime, CPUTimerText);
@@ -93,44 +95,50 @@ public class CPU : MonoBehaviour
         {
             CPUTimerText.text = "00:00:0";
         }
-        
-        TimeLeft = gameManager.currentCountdownTime;
 
-        if (TimeLeft < 30 && CPUInt == CPUGoal)
+        #region CPU Points Thresholds
+        float timeLeft = gameManager.currentCountdownTime;
+
+        if (timeLeft < 30 && CPUInt == CPUGoal)
         {
             CPUAddPoints(100);
         }
 
-        if (TimeLeft >= 30 && TimeLeft < 60 && CPUInt == CPUGoal)
+        if (timeLeft >= 30 && timeLeft < 60 && CPUInt == CPUGoal)
         {
             CPUAddPoints(150);
         }
 
-        if (TimeLeft >= 60 && TimeLeft < 90 && CPUInt == CPUGoal)
+        if (timeLeft >= 60 && timeLeft < 90 && CPUInt == CPUGoal)
         {
             CPUAddPoints(200);
         }
 
-        if (TimeLeft >= 90 && TimeLeft < 120 && CPUInt == CPUGoal)
+        if (timeLeft >= 90 && timeLeft < 120 && CPUInt == CPUGoal)
         {
             CPUAddPoints(250);
         }
 
-        if (TimeLeft >= 120 && CPUInt == CPUGoal)
+        if (timeLeft >= 120 && CPUInt == CPUGoal)
         {
             CPUAddPoints(350);
         }
+        #endregion
+        
         
         Counter.text = CPUInt.ToString();
         
         if (canAct)
         {
-            RespondInt = Random.Range(1, respondPassInt + 1);
+            /* The CPU calculates a random number each frame. If the random number surpasses the response threshold,
+             then another random number is generated. This second random number dictates how much is added to the CPUInt*/
+            respondInt = Random.Range(1, respondPassInt + 1);
 
-            if (RespondInt >= respondPassInt)
+            if (respondInt >= respondPassInt)
             {
                 CPUCalcInt = Random.Range(minRand, maxRand + 1);
-
+                
+                //If CPU's value is greater than the goal do this (second statement explained below)
                 if (CPUInt < CPUGoal && CPUInt != CPUGoal - 1)
                 {
                     CPUInt += CPUCalcInt + 1;
@@ -155,8 +163,10 @@ public class CPU : MonoBehaviour
                         }
                     }
                 }
+                
+                //CPUInt 
 
-                if (CPUInt > CPUGoal)
+                if (CPUInt > CPUGoal && CPUInt != CPUGoal + 1)
                 {
                     CPUInt -= CPUCalcInt - 1;
 
@@ -181,14 +191,19 @@ public class CPU : MonoBehaviour
                     }
                 }
 
+                //CPU Gets a crutch over the player, where it can immediatly round to its goal int if it is one number away from it (Cheeky bastard!)
                 else if (CPUInt == CPUGoal - 1 || CPUInt == CPUGoal + 1)
-                {CPUInt = CPUGoal;}
+                {
+                    CPUInt = CPUGoal;
+                }
             }
         }
     }
 
+    #region Add Points & Level Up Functions
     private void CPUAddPoints(int Amount)
     {
+        //Whenever the CPU reaches its own target goal, it adds a set amount of score (equal to the values given to the player)
         Score += Amount;
         scoreText.text = Score.ToString("00000");
         CPUScoreAddFlag = false;
@@ -196,13 +211,14 @@ public class CPU : MonoBehaviour
     
     public void CPULevelUp()
     {
+        //Function to make the CPU harder next round by lowering the random number needed to pass
+        //lowers PassInt (increases response rate) whenever a level has been passed, and raises the maximum ans int it can produce by 2 whenever 3 levels have been passed
         CPULevel += 1;
-        currentLevelText.text = "Level " + CPULevel.ToString();
+        currentLevelText.text = "Level " + CPULevel;
+        respondPassInt -= 10;
 
-        if (CPULevel % 2 == 0)
-        {respondPassInt -= 10;}
-
-        if (CPULevel % 5 == 0)
-        {maxRand += 2;}
+        if (CPULevel % 3 == 0)
+        {maxRand += 7;}
     }
+    #endregion
 }

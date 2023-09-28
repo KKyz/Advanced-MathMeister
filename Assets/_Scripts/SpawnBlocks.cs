@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,7 +11,6 @@ public class SpawnBlocks : MonoBehaviour
     public bool canBeSelected;
 
     private int RandBlock1, RandBlock2, RandTrash;
-    private EquateScore equateScore;
     private GameObject currentBlock, currentLine;
     private Vector2 tempPosition;
     private static GameObject destroyParticlePrefabS;
@@ -27,7 +25,6 @@ public class SpawnBlocks : MonoBehaviour
     void Start()
     {
         gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
-        equateScore = GetComponent<EquateScore>();
         lineDrawer = GetComponent<DrawLine>();
         destroyParticlePrefabS = destroyParticlePrefab;
         canStaticSetUp = false;
@@ -155,23 +152,23 @@ public class SpawnBlocks : MonoBehaviour
     public void RemoveBlock(int index, bool isDelete)
     {
 
-        if (equateScore.calcs.Count > 0)
+        if (gameManager.calcs.Count > 0)
         {
             if (isDelete)
             {
-                for (int f = equateScore.calcs.Count - 1; f >= 0; f--)
+                for (int f = gameManager.calcs.Count - 1; f >= 0; f--)
                 {
-                    equateScore.calcs.Remove(equateScore.calcs[f]);
+                    gameManager.calcs.Remove(gameManager.calcs[f]);
                 }
 
-                equateScore.calcsString = "0+0";
+                gameManager.calcsString = "0+0";
             }
 
             else
             {
-                for (int i = equateScore.calcs.Count - 1; i >= index - 1; i--)
+                for (int i = gameManager.calcs.Count - 1; i >= index - 1; i--)
                 {
-                    equateScore.calcs.RemoveAt(i);
+                    gameManager.calcs.RemoveAt(i);
                 }
             }
         }

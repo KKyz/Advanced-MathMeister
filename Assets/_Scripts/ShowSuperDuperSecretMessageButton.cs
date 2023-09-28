@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//Simply checks if all conditions are met to enable a button. Nothing more to examine here
 public class ShowSuperDuperSecretMessageButton : MonoBehaviour
 {
     private int TimeTrialCheck, Level1Check, Level2Check, Level3Check, Level4Check, Level5Check;

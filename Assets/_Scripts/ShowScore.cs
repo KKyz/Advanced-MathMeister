@@ -6,7 +6,6 @@ public class ShowScore : MonoBehaviour
 
     public static int playerScore;
     public GameObject Timer, SparksParticle;
-    private GameObject Sparks;
     private Text playerScoreText;
     public bool canReset;
     private GameManager gameManager;
@@ -55,10 +54,10 @@ public class ShowScore : MonoBehaviour
 
     public void AddPoints(int points)
     {
-        Sparks = Instantiate(SparksParticle, gameObject.transform.position, Quaternion.identity);
-        Sparks.transform.SetParent(null);
+//        var thisSpark = Instantiate(SparksParticle, gameObject.transform.position, Quaternion.identity);
+//        thisSpark.transform.SetParent(null);
         playerScore += points;
         gameManager.scoreAddFlag = false;
-        Destroy(Sparks, 2f);
+  //      Destroy(thisSpark, 2f);
     }
 }

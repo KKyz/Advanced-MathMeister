@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class DrawLine : MonoBehaviour
 {
+    //Just draws a line. Nothing else here
     private LineRenderer lineRenderer;
     private float counter;
     private float dist;

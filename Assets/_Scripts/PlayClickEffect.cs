@@ -12,10 +12,7 @@ public class PlayClickEffect : MonoBehaviour
         var thisClickEffect = Instantiate(ClickEffect, transform.position, Quaternion.identity);
         thisClickEffect.transform.SetParent(canvas.transform);
         thisClickEffect.transform.SetSiblingIndex(canvas.childCount - 2);
-    }
 
-    public void ClickedAnimation(string AnimationToPlay)
-    {
-        gameObject.GetComponent<Animator>().Play(AnimationToPlay);
+        LeanTween.move(gameObject, new Vector2(transform.position.x + 2000, transform.position.y), 1f).setEasePunch();
     }
 }

@@ -10,7 +10,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
     public AudioClip selectAudio, removeAudio;
     private string output;
     private SpawnBlocks spawnBlocks;
-    private EquateScore equateScore;
+    
     [HideInInspector]
     public string myString;
 
@@ -37,6 +37,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
 
     private Animator blockAnim;
     private SpriteRenderer spriteRenderer;
+    private GameManager gameManager;
 
     public Color myColor;
     
@@ -51,12 +52,11 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         isBeingSelected = false;
         isBeingRemoved = false;
         animationState = "Idle";
-
-        var spawner = transform.parent;
-        equateScore = spawner.GetComponent<EquateScore>();
-        spawnBlocks = spawner.GetComponent<SpawnBlocks>();
+        
+        spawnBlocks = transform.parent.GetComponent<SpawnBlocks>();
         
         blockAnim = GetComponent<Animator>();
+        gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
         myString = gameObject.GetComponent<AssignString>().blockStr;
         blockAnim.Play("Idle");
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
@@ -153,7 +153,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         myID = IDCounter;
 
         SelectedBlocks.Add(gameObject);
-        equateScore.calcs.Add(myString);
+        gameManager.calcs.Add(myString);
 
         selectSphere = Instantiate(Sphere, gameObject.transform.position, Quaternion.identity);
         selectSphere.transform.SetParent(gameObject.transform);

@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Audio;
 
+//All functions here have been optimized. Nothing more to do here.
 public class OptionsFunctions : MonoBehaviour
 {
     private GameObject AlertMessage, BGToggle, BGMSlider, SFXSlider;

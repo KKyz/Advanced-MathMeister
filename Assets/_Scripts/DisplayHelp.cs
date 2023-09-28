@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+//Code To manage the help screen. May or may not be removed depending on whether I feel like re-doing the help screen.
+
 public class DisplayHelp : MonoBehaviour
 {
     public GameObject CanvasMover;
