@@ -260,7 +260,7 @@ PrefabInstance:
     - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
         type: 3}
       propertyPath: minTarget
-      value: 100
+      value: -300
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2268457899166067384, guid: deab82f62d01e7b4db18fa16a7ef8a21, type: 3}

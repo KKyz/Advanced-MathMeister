@@ -37,7 +37,8 @@ public class GameManager : MonoBehaviour
    [HideInInspector] public bool equationResetFlag, scoreAddFlag, countdownTimerIsRunning;
    [HideInInspector] public int trashCounter;
 
-    private bool canShuffle, countDownSoundActive, triggeredVictory, playerSwitch, additionMode, newCurrentTextFading;
+    private bool canShuffle, countDownSoundActive, triggeredVictory, playerSwitch, newCurrentTextFading;
+    [SerializeField]private bool additionMode;
     private AudioSource SFXSource;
     private Button shuffleButton, equateButton, trashButton;
     private Text currentCounter, trashCountText, timerText, operationText, equateButtonText, newCurrentCounter, newCurrentBack;
@@ -289,7 +290,7 @@ public class GameManager : MonoBehaviour
     
     void AddTime(int timeAdded)
     {
-        //currentCountdownTime += timeAdded;
+        currentCountdownTime += timeAdded;
     }
 
     public void DisplayTime(float timeToDisplay, Text textToDisplay)
@@ -301,6 +302,7 @@ public class GameManager : MonoBehaviour
         textToDisplay.text = string.Format("{0:00}:{1:00}:{2:0}", minutes, seconds, milliSeconds);
     }
 
+    //FIX THIS SHIT
     private IEnumerator fadeTextInOut()
     {
         newCurrentTextFading = true;
@@ -313,10 +315,8 @@ public class GameManager : MonoBehaviour
     
     public void Update()
     {
-        int topboundNum = 5;
-        int bottomboundNum = -5;
-        
-        for(int i = 0; i < calcs.Count; i++)
+        #region Calculating Items in Calcs List
+        foreach (string item in calcs)
         {
             calcsString = string.Join("", calcs.ToArray());
         }
@@ -354,12 +354,15 @@ public class GameManager : MonoBehaviour
         {
             calcsString = "0+0";
         }
+        #endregion
 
+        #region Update Current Counter (Based on Output from Calcs List)
         if (gameMode == GameMode.Level1)
         {
             currentCounter.text = "???";
             newCurrentCounter.text = "???";
         }
+        
         else if (output != 0)
         {
             if (newCurrentTextFading)
@@ -368,11 +371,11 @@ public class GameManager : MonoBehaviour
             }
             if (additionMode)
             {
-                newCurrentCounter.text = (output + playerNumber).ToString();
+                newCurrentCounter.text = (playerNumber + output).ToString();
             }
             else
             {
-                newCurrentCounter.text = (output - playerNumber).ToString();
+                newCurrentCounter.text = (playerNumber - output).ToString();
             }
             
             //StartCoroutine(fadeTextInOut());
@@ -384,43 +387,50 @@ public class GameManager : MonoBehaviour
             newCurrentCounter.color = newCurrentColor;
         }
 
-        if (playerNumber < 0)
+        if (gameMode != GameMode.Level1)
         {
-            operationText.text = "+";
-            equateButtonText.text = "Add";
-            additionMode = true; 
+            currentCounter.text = playerNumber.ToString();
         }
+        #endregion
 
-        if (playerNumber > 0)
-        {
-            operationText.text = "-";
-            equateButtonText.text = "Subtract";
-            additionMode = false;
-        }
-
+        #region BG Flash Triggers
         //Change BG color during event
         if (flashObj != null)
         {
-            if (playerNumber <= topboundNum && playerNumber > bottomboundNum && playerNumber != 0)
+            //Player very close to goal
+            if (playerNumber == 1 || playerNumber == -1)
             {
+                StopCoroutine(RedFlash());
+                StopCoroutine(GreenFlash());
+                StartCoroutine(RapidGreenFlash());
+            }
+            
+            else if (playerNumber <= 3 && playerNumber > -3 && playerNumber != 0)
+            {
+                StopCoroutine(RapidGreenFlash());
                 StopCoroutine(RedFlash());
                 StartCoroutine(GreenFlash());
             }
 
-            else if (playerNumber >= topboundNum && playerNumber != 0)
+            //Player falling far below target
+            else if (playerNumber <= -3 && playerNumber != 0)
             {
+                StopCoroutine(RapidGreenFlash());
                 StopCoroutine(GreenFlash());
                 StartCoroutine(RedFlash());
             }
 
-            else if (playerNumber <= bottomboundNum || playerNumber == 0)
+            else if ((playerNumber >= -3 && playerNumber != 0) || playerNumber == 0)
             {
+                StopCoroutine(RapidGreenFlash());
                 StopCoroutine(GreenFlash());
                 StopCoroutine(RedFlash());
                 StartCoroutine(NullFlash());
             }
         }
+        #endregion
 
+        #region Gasp Triggers
         //Play low pitch gasping sound if close
         if (playerNumber == 3 || playerNumber == - 3)
         {   if (!haveGasped)
@@ -438,33 +448,48 @@ public class GameManager : MonoBehaviour
                 haveGasped = true;
             }
         }
+        #endregion
+
+        #region Activate Countdown Time
+        if(currentCountdownTime > 0)
+        {
+            if (countdownTimerIsRunning)
+            {
+                currentCountdownTime -= Time.deltaTime;
+                DisplayTime(currentCountdownTime, timerText);
+            }
+        }
         
-        if(currentCountdownTime > 0 && countdownTimerIsRunning)
+        else
         {
-            currentCountdownTime -= Time.deltaTime;
-            DisplayTime(currentCountdownTime, timerText);
+            timerText.text = "00:00:0"; 
+            countdownTimerIsRunning = false;
         }
+        #endregion
 
-        if (currentCountdownTime <= 0)
+        #region Time Bonus Triggers
+        if (scoreAddFlag)
         {
-            timerText.text = "00:00:0"; countdownTimerIsRunning = false;
-        }
+            if (equationCounter <= 2)
+            {
+                AddTime(5);
+            }
 
-        if (scoreAddFlag && equationCounter <= 2)
-        {
-            AddTime(5);
-        }
+            else if (equationCounter == 3)
+            {
+                AddTime(3);
+            }
 
-        else if (scoreAddFlag && equationCounter == 3)
-        {
-            AddTime(3);
+            else if (equationCounter == 4)
+            {
+                AddTime(1);
+            }
+            
+            equationCounter = 0;
         }
+        #endregion
 
-        else if (scoreAddFlag && equationCounter == 4)
-        {
-            AddTime(1);
-        }
-
+        #region Countdown Sound Triggers
         if (currentCountdownTime <= 10 && !countDownSoundActive)
         {
             SFXSource.PlayOneShot(FinalCountdownSound);
@@ -476,7 +501,9 @@ public class GameManager : MonoBehaviour
             SFXSource.Stop();
             countDownSoundActive = false;
         }
+        #endregion
 
+        #region Trash Counter Condition Stuff
         if (gameMode == GameMode.Level4)
         {
             if (trashCounter != 0)
@@ -491,7 +518,9 @@ public class GameManager : MonoBehaviour
                 trashCountText.text = "0";
             }
         }
+        #endregion
 
+        #region Equate Button Text and Appearance Triggers
         if (output != 0)
         {
             if (calcs.Count == 3 || calcs.Count == 5 || calcs.Count == 7)
@@ -500,7 +529,7 @@ public class GameManager : MonoBehaviour
                 equateColorBlock.pressedColor = new Color(0, 0.32f, 0.078f, 1);
                 equateColorBlock.normalColor = new Color(0, 1, 0, 1); 
                 equateButton.enabled = true;
-                LeanTween.rotateZ(equateButton.gameObject, -180, 0.3f);
+                LeanTween.rotateZ(equateButton.gameObject, 0, 0.3f);  
             }
             
         }
@@ -510,19 +539,25 @@ public class GameManager : MonoBehaviour
             equateColorBlock.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1);
             equateColorBlock.normalColor = new Color(0.68f, 0.68f, 0.68f, 1);
             equateButton.enabled = false;
-            LeanTween.rotateZ(equateButton.gameObject, 0, 0.3f);
-
-            if (equateButton.transform.rotation.z == 0f)
-            {
-                LeanTween.rotateZ(equateButton.gameObject, -180, 0.3f);
-            }
+            LeanTween.rotateZ(equateButton.gameObject, -180, 0.3f);
         }
-
-        if (scoreAddFlag)
+        
+        if (playerNumber < 0)
         {
-            equationCounter = 0;
+            operationText.text = "+";
+            equateButtonText.text = "Add";
+            additionMode = true; 
         }
 
+        if (playerNumber > 0)
+        {
+            operationText.text = "-";
+            equateButtonText.text = "Subtract";
+            additionMode = false;
+        }
+        #endregion
+
+        #region Game Mode Conditions
         //Time Trial Mode
         if (gameMode == GameMode.TimeTrial)
         {
@@ -543,7 +578,7 @@ public class GameManager : MonoBehaviour
             {
                 scoreAddFlag = false;
             }
-            Debug.Log("triggered victory = " + triggeredVictory);
+            //Debug.Log("triggered victory = " + triggeredVictory);
             if(CountDownTimer <= 0 && !triggeredVictory)
             {
                 //BGMSource.clip = VictoryBGM;
@@ -723,9 +758,11 @@ public class GameManager : MonoBehaviour
         {
             
         }
+        #endregion
+        
     }
 
-    #region BG Flashes
+    #region BG Flash Commands
     private IEnumerator RedFlash()
     {
         flashObj.SetActive(true);
@@ -738,6 +775,14 @@ public class GameManager : MonoBehaviour
     {
         flashObj.SetActive(true);
         LeanTween.color(flashObj, Color.green, 1f).setDelay(1f);
+        LeanTween.color(flashObj, Color.clear, 1f).setDelay(1f);
+        yield return null;
+    }
+    
+    private IEnumerator RapidGreenFlash()
+    {
+        flashObj.SetActive(true);
+        LeanTween.color(flashObj, Color.green, 0.5f).setDelay(0.5f);
         LeanTween.color(flashObj, Color.clear, 1f).setDelay(1f);
         yield return null;
     }

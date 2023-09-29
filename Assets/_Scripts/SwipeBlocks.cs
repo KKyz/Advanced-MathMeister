@@ -5,35 +5,26 @@ using UnityEngine.EventSystems;
 
 public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHandler
 {
-    private AudioSource audioData;
-    private float pitchValue = 1.0f;
+    private AudioSource sfxSource;
     public AudioClip selectAudio, removeAudio;
-    private string output;
+    
+    private float pitchValue = 1.0f;
     private SpawnBlocks spawnBlocks;
     
     [HideInInspector]
     public string myString;
 
-    public GameObject Sphere;
+    public GameObject sphere;
     public GameObject blockClickPrefab;
-
-    [HideInInspector]
-    public GameObject selectSphere;
-
-    private GameObject blockParticle;
 
     public List<GameObject> SelectedBlocks = new();
 
-    public bool selected;
-    public bool lockBlock = false;
-    public bool firstSelect;
-    private bool isBeingSelected, isBeingRemoved;
+    public bool selected, lockBlock, firstSelect;
+    private bool isBeingSelected, isBeingRemoved; //what??
     public string animationState;
 
 
-    public int myID;
-    public int myTrash;
-    public int IDCounter;
+    public int myID, IDCounter;
 
     private Animator blockAnim;
     private SpriteRenderer spriteRenderer;
@@ -43,8 +34,9 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
     
     void Start()
     {
-        audioData = gameObject.GetComponent<AudioSource>();
-        audioData.pitch = pitchValue;
+        gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
+        lockBlock = false;
+        sfxSource.pitch = pitchValue;
         IDCounter = 0;
 
         selected = false;
@@ -56,12 +48,11 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         spawnBlocks = transform.parent.GetComponent<SpawnBlocks>();
         
         blockAnim = GetComponent<Animator>();
-        gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
+        sfxSource = gameManager.GetComponent<AudioSource>();
         myString = gameObject.GetComponent<AssignString>().blockStr;
         blockAnim.Play("Idle");
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         spriteRenderer.material.SetColor("_Color", myColor);
-        
     }
 
     void Update()
@@ -78,7 +69,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
             {
                 if (SpawnBlocks.allBlocks[(int)transform.position.x, i] == null)
                 {
-                    StartCoroutine(LerpPosition(new Vector2(transform.position.x, transform.position.y - 1), 0.21f));
+                    LeanTween.move(gameObject, new Vector2(transform.position.x, transform.position.y - 1), 0.21f);
                 }
             }
         }
@@ -118,7 +109,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
             if (SelectedBlocks.Contains(gameObject))
             {
                 spawnBlocks.RemoveBlock(myID, false);
-                audioData.PlayOneShot(removeAudio);
+                sfxSource.PlayOneShot(removeAudio);
                 isBeingRemoved = true;
             }
         }
@@ -126,7 +117,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerExit(PointerEventData pointerEventData)
     {
-        StartCoroutine(RefreshSelection(0.1f));
+        StartCoroutine(RefreshSelection());
     }
 
     void AddBlock()
@@ -137,54 +128,38 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         if (firstSelect)
         {
             pitchValue = 1.0f;
-            audioData.pitch = pitchValue;
+            sfxSource.pitch = pitchValue;
         }
         else
         {
             pitchValue = 1 + (SelectedBlocks.Count * 0.03f);
-            audioData.pitch = pitchValue;
+            sfxSource.pitch = pitchValue;
         }
 
-        audioData.PlayOneShot(selectAudio);
-
+        sfxSource.PlayOneShot(selectAudio);
         
-
         IDCounter += 1;
         myID = IDCounter;
 
         SelectedBlocks.Add(gameObject);
         gameManager.calcs.Add(myString);
 
-        selectSphere = Instantiate(Sphere, gameObject.transform.position, Quaternion.identity);
+        var selectSphere = Instantiate(sphere, gameObject.transform.position, Quaternion.identity);
         selectSphere.transform.SetParent(gameObject.transform);
 
-        blockParticle = Instantiate(blockClickPrefab, gameObject.transform.position, Quaternion.identity);
+        var blockParticle = Instantiate(blockClickPrefab, gameObject.transform.position, Quaternion.identity);
         blockParticle.transform.SetParent(gameObject.transform);
         
 
         spriteRenderer.material.SetColor("_Color", Color.yellow);
     }
 
-    IEnumerator LerpPosition(Vector2 targetPosition, float duration)
-    {
-        float time = 0;
-        Vector2 startPosition = transform.position;
-
-        while (time < duration)
-        {
-            transform.position = Vector2.Lerp(startPosition, targetPosition, time / duration);
-            time += Time.deltaTime;
-            yield return null;
-        }
-        transform.position = targetPosition;
-    }
-
-    IEnumerator RefreshSelection(float time)
+    private IEnumerator RefreshSelection()
     {
         isBeingSelected = true;
         isBeingRemoved = true;
 
-        yield return new WaitForSeconds(time);
+        yield return new WaitForSeconds(0.1f);
 
         isBeingSelected = false;
         isBeingRemoved = false;

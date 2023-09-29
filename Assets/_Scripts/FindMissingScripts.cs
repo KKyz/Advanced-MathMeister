@@ -4,24 +4,7 @@ using System.Linq;
 
 public static class FindMissingScripts
 {
-    [MenuItem(("My Menu/Find Missing Scripts In Scene"))]
-
-    static void FindMissingScriptsInSceneMenuItem()
-    {
-        foreach (GameObject gameObject in GameObject.FindObjectsOfType<GameObject>(true))
-        {
-            foreach (Component component in gameObject.GetComponentsInChildren<Component>())
-            {
-                if (component == null)
-                {
-                    Debug.Log("GameObject found with missing script " + gameObject.name, gameObject);
-                    break;
-                }
-            }
-        }
-    }
-    
-    [MenuItem("My Menu/Find Missing Scripts In Project")]
+    [MenuItem("Missing Scripts/Find Missing Scripts In Project")]
 
     static void FindMissingScriptsInProjectMenuItem()
     {
@@ -40,4 +23,22 @@ public static class FindMissingScripts
             }
         }
     }
+    
+    /*
+    [MenuItem(("Missing Scripts/Find Missing Scripts In Scene"))]
+
+    static void FindMissingScriptsInSceneMenuItem()
+    {
+        foreach (GameObject gameObject in GameObject.FindObjectsOfType<GameObject>(true))
+        {
+            foreach (Component component in gameObject.GetComponentsInChildren<Component>())
+            {
+                if (component == null)
+                {
+                    Debug.Log("GameObject found with missing script " + gameObject.name, gameObject);
+                    break;
+                }
+            }
+        }
+    }*/
 }
