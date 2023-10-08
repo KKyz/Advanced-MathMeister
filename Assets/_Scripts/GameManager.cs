@@ -34,23 +34,24 @@ public class GameManager : MonoBehaviour
     public AudioClip audienceGaspFar;
     public AudioClip audienceGaspClose;
     
-   [HideInInspector] public bool equationResetFlag, scoreAddFlag, countdownTimerIsRunning;
-   [HideInInspector] public int trashCounter;
+   [HideInInspector] public bool equationResetFlag, scoreAddFlag, countdownTimerIsRunning, scoreReset;
+   [HideInInspector] public int trashCounter, bestLevel1, bestLevel2, bestLevel3, bestLevel4, playerScore;
+   [HideInInspector] public float bestTimeTrial, bestLevel5;
 
-    private bool canShuffle, countDownSoundActive, triggeredVictory, playerSwitch, newCurrentTextFading;
+   private bool canShuffle, countDownSoundActive, triggeredVictory, newCurrentTextFading;
     [SerializeField]private bool additionMode;
     private AudioSource SFXSource;
     private Button shuffleButton, equateButton, trashButton;
-    private Text currentCounter, trashCountText, timerText, operationText, equateButtonText, newCurrentCounter, newCurrentBack;
+    private Text currentCounter, trashCountText, timerText, operationText, equateButtonText, newCurrentCounter, newCurrentBack, playerScoreText, uncalculatedText;
     private ColorBlock shuffleColorBlock, equateColorBlock;
     private Color newCurrentColor, newCurrentBackColor;
     private SpawnBlocks spawnBlocks;
     private SwipeBlocks swipeBlocks;
     private StartCountDown startCountDown;
     private AudioSource BGMSource;
-    private float bestTime, musicPos, CPCountdownTime, timeLimit, CountDownTimer;
-    private int CPUTrashBest, CPUTrashLevel, CPUScoreInt, Level2Best, CPCounter, CPUTimeLevel, CPUTimeBest, equationCounter;
-    private GameObject CPUTrashLevelText, CPUWaitFade, resultsCanvas;
+    private float musicPos, CPCountdownTime, timeLimit, CountDownTimer;
+    private int equationCounter;
+    private GameObject CPUTrashLevelText, resultsCanvas;
 
     public static bool haveGasped;
     
@@ -59,6 +60,7 @@ public class GameManager : MonoBehaviour
     public string calcsString;
     private Parser parser = new();
     private NumberExpression numExpression;
+    private PlayerData playerSave;
 
     public enum GameMode
     {
@@ -72,6 +74,8 @@ public class GameManager : MonoBehaviour
     
     void Awake()
     {
+        playerSave = SaveSystem.LoadPlayer();
+        
         //getting scripts for necessary game functions (equating items, spawning blocks, etc.)
         var spawner = GameObject.Find("GameInterface").transform.Find("Spawner");
         spawnBlocks = spawner.GetComponent<SpawnBlocks>();
@@ -81,13 +85,7 @@ public class GameManager : MonoBehaviour
         shuffleButton = transform.Find("ButtonCanvas").Find("ShuffleButton").GetComponent<Button>();
         equateButton = transform.Find("ButtonCanvas").Find("EquateButton").GetComponent<Button>();
         resultsCanvas = transform.Find("BGCanvas").Find("ResultsScreen").gameObject;
-        
-        if (gameMode == GameMode.Level4)
-        {
-            trashButton = transform.Find("ButtonCanvas").Find("TrashButton").GetComponent<Button>();
-            //trashCounterText = transform.parent.Find("LabelCanvas").Find("TrashCounter").GetComponent<Text>();
-        }
-        
+
         shuffleColorBlock = shuffleButton.GetComponent<Button>().colors;
         equateColorBlock = equateButton.GetComponent<Button>().colors;
         equationResetFlag = false;
@@ -100,6 +98,7 @@ public class GameManager : MonoBehaviour
         triggeredVictory = false;
         currentCounter = transform.Find("LabelCanvas").Find("YourNumberCounter").GetComponent<Text>();
         currentCounter.text = playerNumber.ToString();
+        uncalculatedText = transform.Find("LabelCanvas").Find("UncalculatedNumberCounter").GetComponent<Text>();
         newCurrentCounter = transform.Find("LabelCanvas").Find("CalculatedNumberCounter").GetComponent<Text>();
         newCurrentBack = transform.Find("LabelCanvas").Find("CalculatedNumberCounterBack").GetComponent<Text>();
         newCurrentColor = newCurrentCounter.color;
@@ -111,13 +110,7 @@ public class GameManager : MonoBehaviour
         timeLimit = 45f;
         musicPos = 0f;
         StartCoroutine(PlayBGMSource());
-        playerSwitch = true;
-        CPUTimeLevel = 1;
-        CPUTrashLevel = 1;
-        CPUTimeBest = PlayerPrefs.GetInt("Level3", 5);
-        CPUTrashBest = PlayerPrefs.GetInt("Level4", 4);
-        Level2Best = PlayerPrefs.GetInt("Level2", 7);
-
+        
         spawnBlocks.canBeSelected = false;
         
         countDownSoundActive = false;
@@ -140,6 +133,13 @@ public class GameManager : MonoBehaviour
         {
             calcs.RemoveAt(i);
         }
+        
+        playerScoreText = transform.Find("LabelCanvas").Find("ScoreCounter").GetComponent<Text>();
+
+        if (scoreReset)
+        {
+            playerScore = 0;
+        }
     }
 
     public void ShuffleBlocks(float shuffleTime)
@@ -149,7 +149,7 @@ public class GameManager : MonoBehaviour
             equationResetFlag = true;
             spawnBlocks.RemoveBlock(1, false);
 
-            spawnBlocks.SetUp(5, 4);
+            StartCoroutine(spawnBlocks.StaticSetUp(5, 4));
             StartCoroutine(RefreshShuffle(shuffleTime));
 
             SFXSource.PlayOneShot(shuffleSound, 0.7f);
@@ -195,28 +195,14 @@ public class GameManager : MonoBehaviour
             equationResetFlag = true;
 
             SFXSource.PlayOneShot(equateSound, 0.7f);
-            newCurrentCounter.text = "0";
+            newCurrentCounter.text = "???";
             haveGasped = false;
             //var thisSparkleParticle = Instantiate(sparkleParticle, playerNumber.gameObject.transform.position, Quaternion.identity);
             //Destroy(thisSparkleParticle, 2f);
         }
     }
 
-    public void ThrowTrash()
-    {
-        if (trashCounter != 0)
-        {
-            var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
-            CPU.CPUInt += trashCounter;
 
-            //var explosion = Instantiate(explosionParticle, GameObject.Find("CPUCounter").transform.position, Quaternion.identity);
-            LeanTween.rotateZ(trashButton.gameObject, 0, 1f);
-            //Destroy(explosion, 2f);
-            trashCounter = 0;
-        }
-    }
-
-    
     public void NextLevel()
     {
         var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
@@ -233,19 +219,6 @@ public class GameManager : MonoBehaviour
         timeLimit = 45f;
         timerText.text = "00:45:0";
         currentCountdownTime = timeLimit;
-        
-        if (gameMode == GameMode.Level3)
-        {
-            CPU.CPUTimerText.text = "00:45:0";
-            CPU.CPUCountdownTime = timeLimit;
-            CPU.CPUcountdownTimerIsRunning = false;
-            playerSwitch = true;
-        }
-
-        if (gameMode == GameMode.Level4)
-        {
-            CPU.UpdateCPUGoal(minTarget, maxTarget);
-        }
 
         playerNumber = 0;
         CPU.CPUInt = 0;
@@ -313,6 +286,15 @@ public class GameManager : MonoBehaviour
         LeanTween.textColor(newCurrentBack.rectTransform, newCurrentBackColor, 1.5f);
     }
     
+    private void AddPoints(int points)
+    {
+        //var thisSpark = Instantiate(SparksParticle, gameObject.transform.position, Quaternion.identity);
+        //thisSpark.transform.SetParent(null);
+        playerScore += points;
+        scoreAddFlag = false;
+        //Destroy(thisSpark, 2f);
+    }
+    
     public void Update()
     {
         #region Calculating Items in Calcs List
@@ -321,7 +303,7 @@ public class GameManager : MonoBehaviour
             calcsString = string.Join("", calcs.ToArray());
         }
 
-        if (calcs.Count == 1 || calcs.Count == 3 || calcs.Count == 5 || calcs.Count == 7)
+        if (calcs.Count == 3 || calcs.Count == 5 || calcs.Count == 7)
         {
             numExpression = parser.ParseNumber(calcsString);
             output = Convert.ToInt32(numExpression.GetNumber());
@@ -335,11 +317,11 @@ public class GameManager : MonoBehaviour
         //Fix this later
         if (calcsString != "0+0")
         {
-            //currentCounter.text = calcsString;
+            uncalculatedText.text = "(" + calcsString + ")";
         }
         else
         {
-            //currentCounter.text = "0";
+            uncalculatedText.text = "";
         }
 
         if (calcs.Count >= 1)
@@ -382,7 +364,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            newCurrentCounter.text = "0";
+            newCurrentCounter.text = "???";
             newCurrentBack.color = newCurrentBackColor;
             newCurrentCounter.color = newCurrentColor;
         }
@@ -429,6 +411,34 @@ public class GameManager : MonoBehaviour
             }
         }
         #endregion
+        
+        if (currentCountdownTime < 30 && scoreAddFlag)
+        {
+            AddPoints(100);
+        }
+
+        if (currentCountdownTime >= 30 && currentCountdownTime < 60 && scoreAddFlag)
+        {
+            AddPoints(150);
+        }
+
+        if (currentCountdownTime >= 60 && currentCountdownTime < 90 && scoreAddFlag)
+        {
+            AddPoints(200);
+        }
+
+        if (currentCountdownTime >= 90 && currentCountdownTime < 120 && scoreAddFlag)
+        {
+            AddPoints(250);
+        }
+
+        if (currentCountdownTime >= 120 && scoreAddFlag)
+        {
+            AddPoints(350);
+        }
+
+        playerScoreText.text = playerScore.ToString("00000");
+        
 
         #region Gasp Triggers
         //Play low pitch gasping sound if close
@@ -503,46 +513,38 @@ public class GameManager : MonoBehaviour
         }
         #endregion
 
-        #region Trash Counter Condition Stuff
-        if (gameMode == GameMode.Level4)
-        {
-            if (trashCounter != 0)
-            {
-                LeanTween.rotateZ(trashButton.gameObject, 0, 1f);
-                trashCountText.text = trashCounter.ToString();
-            }
-
-            if (trashButton.transform.rotation.z == 0f && trashCounter == 0)
-            {
-                LeanTween.rotateZ(trashButton.gameObject, -180, 1f);
-                trashCountText.text = "0";
-            }
-        }
-        #endregion
-
         #region Equate Button Text and Appearance Triggers
-        if (output != 0)
+        if (newCurrentCounter.text != "???")
         {
-            if (calcs.Count == 3 || calcs.Count == 5 || calcs.Count == 7)
+            if (!equateButton.enabled)
             {
-                equateColorBlock.selectedColor = new Color(0, 1, 0, 1);
-                equateColorBlock.pressedColor = new Color(0, 0.32f, 0.078f, 1);
-                equateColorBlock.normalColor = new Color(0, 1, 0, 1); 
-                equateButton.enabled = true;
-                LeanTween.rotateZ(equateButton.gameObject, 0, 0.3f);  
+                if (calcs.Count == 3 || calcs.Count == 5 || calcs.Count == 7)
+                {
+                    equateColorBlock.selectedColor = new Color(0, 1, 0, 1);
+                    equateColorBlock.pressedColor = new Color(0, 0.32f, 0.078f, 1);
+                    equateColorBlock.normalColor = new Color(0, 1, 0, 1);
+                
+                    LeanTween.rotateZ(equateButton.gameObject, 0, 0.3f);
+                    equateButton.enabled = true;
+                }
             }
-            
         }
         else
         {
-            equateColorBlock.selectedColor = new Color(0.68f, 0.68f, 0.68f, 1);
-            equateColorBlock.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1);
-            equateColorBlock.normalColor = new Color(0.68f, 0.68f, 0.68f, 1);
-            equateButton.enabled = false;
-            LeanTween.rotateZ(equateButton.gameObject, -180, 0.3f);
+            if (equateButton.enabled)
+            {
+
+                //equateButton.enabled = true;
+                equateColorBlock.selectedColor = new Color(0.68f, 0.68f, 0.68f, 1);
+                equateColorBlock.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1);
+                equateColorBlock.normalColor = new Color(0.68f, 0.68f, 0.68f, 1);
+
+                LeanTween.rotateZ(equateButton.gameObject, -180, 0.3f);
+                equateButton.enabled = false;
+            }
         }
-        
-        if (playerNumber < 0)
+
+        if (playerNumber <= 0)
         {
             operationText.text = "+";
             equateButtonText.text = "Add";
@@ -570,8 +572,6 @@ public class GameManager : MonoBehaviour
                 //Destroy(thisChangeParticle, 2f);
                 playerNumber = Random.Range(minTarget, maxTarget);
                 currentCounter.text = playerNumber.ToString();
-                if (ShowScore.playerScore > (ShowBestScore.displayBestScore - 100))
-                {PlayerPrefs.SetInt("TimeTrial", ShowScore.playerScore + 100);}
             }
 
             else
@@ -600,8 +600,6 @@ public class GameManager : MonoBehaviour
                 //Destroy(thisChangechangeParticle, 2f);
                 playerNumber = Random.Range(minTarget, maxTarget);
                 currentCounter.text = playerNumber.ToString();
-                if (ShowScore.playerScore > (ShowBestScore.displayBestScore - 100))
-                {PlayerPrefs.SetInt("Level1", ShowScore.playerScore + 100);}
             }
 
             else
@@ -636,123 +634,15 @@ public class GameManager : MonoBehaviour
             {
                 BGMSource.clip = VictoryBGM;
                 StartCoroutine(DisplayResults());
-                
-                if (CountMoves.levelCounter > Level2Best)
-                {PlayerPrefs.SetInt("Level2", CountMoves.levelCounter);}
-            }
-        }
 
-        //CPU Time Attack Mode
-        if (gameMode == GameMode.Level3)
-        {
-            var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
-            CPCountdownTime = CPU.CPUCountdownTime;
-            CPCounter = CPU.CPUInt;
-            CPUWaitFade = GameObject.Find("CPUWaitFade");
-
-            if (playerSwitch)
-            {   
-                if (playerNumber == 0)
+                if (CountMoves.levelCounter > playerSave.bestLevel2)
                 {
-                    CPCountdownTime = timeLimit;
-                    SFXSource.PlayOneShot(GoalChange, 0.5f);
-                    CPU.UpdateCPUGoal(minTarget, maxTarget);
-                    CPU.canAct = true;
-                    CPU.CPUcountdownTimerIsRunning = true;
-
-                    countdownTimerIsRunning = false;
-                    spawnBlocks.canBeSelected = false;
-                    playerSwitch = false;
-                }
-
-                if (CountDownTimer <= 0 && !triggeredVictory)
-                {
-                    CPU.canAct = false;
-                    BGMSource.clip = FailBGM;
-                    StartCoroutine(DisplayResults());
-                }
-            }
-
-            if (!playerSwitch)
-            {   
-                if (CPCounter == CPU.CPUGoal)
-                {
-                    timeLimit -= 5f;
-                    CountDownTimer = timeLimit;
-                    
-                    countdownTimerIsRunning = true;
-                    spawnBlocks.canBeSelected = true;
-                    playerSwitch = true;
-                    SFXSource.PlayOneShot(GoalChange, 0.5f);
-                    //thisChangeParticle = Instantiate(ChangeParticle, gameObject.transform.position, Quaternion.identity);
-                    //thisChangeParticle.transform.SetParent(null);
-                    //Destroy(thisChangeParticle, 2f);
-                    playerNumber = Random.Range(minTarget, maxTarget);
-                    currentCounter.text = playerNumber.ToString();
-
-                    CPU.canAct = false;
-                    CPU.CPUcountdownTimerIsRunning = false;
-                    
-                }
-
-                if (CPCountdownTime <= 0 && !triggeredVictory)
-                {
-                    CPU.canAct = false;
-                    BGMSource.clip = VictoryBGM;
-                    StartCoroutine(DisplayResults());
-                    CPUTimeLevel += 1;
-
-                    if (CPUTimeLevel > CPUTimeBest)
-                    {PlayerPrefs.SetInt("Level3", CPUTimeLevel);}
+                    playerSave.bestLevel2 = CountMoves.levelCounter;
+                    //SaveSystem.SavePlayer(playerSave);
                 }
             }
         }
-        
-        //CPU Trash Attack Mode
-        if (gameMode == GameMode.Level4)
-        {
-            var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
-            CPUTrashLevelText = GameObject.Find("LevelCounter");
-            CPUScoreInt = CPU.Score;
-            CPCounter = CPU.CPUInt;
 
-            CPUTrashLevelText.GetComponent<Text>().text = ("Level "+ CPUTrashLevel.ToString());
-
-            if (playerNumber == 0)
-            {
-                playerNumber = Random.Range(minTarget, maxTarget);
-                currentCounter.text = playerNumber.ToString();
-            }
-
-            if (CPCounter == CPU.CPUGoal)
-            {
-                CPU.CPUScoreAddFlag = true;
-                CPU.UpdateCPUGoal(minTarget, maxTarget);
-            }
-
-            if (CountDownTimer <= 0 && !triggeredVictory)
-            {
-                CPU.canAct = false;
-
-                if (CPUScoreInt > ShowScore.playerScore)
-                {
-                    BGMSource.clip = FailBGM;
-                    StartCoroutine(DisplayResults());
-                }
-
-                if (ShowScore.playerScore >= CPUScoreInt)
-                {
-                    BGMSource.clip = FailBGM;
-                    StartCoroutine(DisplayResults());
-                    
-                    CPUTrashLevel += 1;
-
-                    if (CPUTrashLevel > CPUTrashBest)
-                    {PlayerPrefs.SetInt("Level4", CPUTrashLevel);}
-                }
-            }
-        }
-        
         //First to 1000
         if (gameMode == GameMode.Level5)
         {

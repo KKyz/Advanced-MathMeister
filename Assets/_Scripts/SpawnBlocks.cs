@@ -1,32 +1,24 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class SpawnBlocks : MonoBehaviour
 {
     public int width, height;
-    public GameObject tilePrefab, destroyParticlePrefab, LinePrefab;
+    public GameObject tilePrefab, linePrefab, destroyParticle;
     public GameObject[] Blocks;
-    public static GameObject[,] allBlocks;
+    public GameObject[,] allBlocks;
+    public List<GameObject> selectedBlocks = new();
     public bool canBeSelected;
-
-    private int RandBlock1, RandBlock2, RandTrash;
-    private GameObject currentBlock, currentLine;
+    
     private Vector2 tempPosition;
-    private static GameObject destroyParticlePrefabS;
-    private GameObject backgroundTile;
-    private static GameObject destroyParticle;
-    private static bool canStaticSetUp;
-    private Color red, blue;
-    private DrawLine lineDrawer;
-    private SwipeBlocks swipeBlocks;
+    private bool canStaticSetUp;
+    //private SwipeBlocks swipeBlocks;
     private GameManager gameManager;
     
     void Start()
     {
         gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
-        lineDrawer = GetComponent<DrawLine>();
-        destroyParticlePrefabS = destroyParticlePrefab;
         canStaticSetUp = false;
         canBeSelected = false;
         allBlocks = new GameObject[width,height];
@@ -35,61 +27,59 @@ public class SpawnBlocks : MonoBehaviour
 
     public void SetUp(int width, int height)
     {
+        //Initial setup w/o any special rules, used in start and when shuffling
         canStaticSetUp = false;
         canBeSelected = true;
+        
+        //Clears out all contents in game object
         foreach (Transform child in gameObject.transform)
         {
             Destroy(child.gameObject);
         }
 
+        //Creating grid of blocks
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
+                
                 tempPosition = new Vector2(i, j);
-                backgroundTile = Instantiate(tilePrefab, tempPosition, Quaternion.identity);
+                
+                //First, it creates all of the background tiles
+                var backgroundTile = Instantiate(tilePrefab, tempPosition, Quaternion.identity);
                 backgroundTile.transform.SetParent(gameObject.transform);
                 backgroundTile.name = "(" + i + "," + j + ")B";
                 
-                RandBlock1 = Random.Range(0, 100);
-                if (RandBlock1 < 45){RandBlock2 = Random.Range(0, 5);}
-                else if (RandBlock1 >= 45 && RandBlock1 < 90){RandBlock2 = Random.Range(5, 9);}
-                else if (RandBlock1 >= 90){RandBlock2 = Random.Range(9, 13);}
-
+                /*Secondly, the block to be placed on the background tile position is decided. This is done through
+                 two random variables. randBlock1 is an arbitrary probability counter 
+                 that settles on a tier of blocks (e.g. most powerful blocks have a 15% chance
+                 of appearing). randBlock2 decides which one from that tier block (e.g. choosing *, 8, 9, etc.).*/
+                var randBlock1 = Random.Range(0, 100);
+                var randBlock2 = 0;
                 
-
-                currentBlock = Instantiate(Blocks[RandBlock2], tempPosition, Quaternion.identity);
-                currentBlock.GetComponent<Animator>().Play("GrowBlock");
+                if (randBlock1 < 45)
+                {
+                    randBlock2 = Random.Range(0, 5);
+                }
+                else if (randBlock1 >= 45 && randBlock1 < 90)
+                {
+                    randBlock2 = Random.Range(5, 9);
+                }
+                else if (randBlock1 >= 90)
+                {
+                    randBlock2 = Random.Range(9, 13);
+                }
+                
+                //Creates and places these blocks into the grid
+                var currentBlock = Instantiate(Blocks[randBlock2], tempPosition, Quaternion.identity);
+                //currentBlock.GetComponent<Animator>().Play("GrowBlock");
+                currentBlock.transform.localScale = new Vector3(0, 0, 0);
+                LeanTween.scale(currentBlock.gameObject, new Vector3(1.25f, 1.25f, 1.25f), 1f).setEaseOutBounce();
                 currentBlock.transform.SetParent(gameObject.transform);
                 currentBlock.name = "(" + i + "," + j + ")";
-                swipeBlocks = currentBlock.GetComponent<SwipeBlocks>();
+                //swipeBlocks = currentBlock.GetComponent<SwipeBlocks>();
 
-                if (SceneManager.GetActiveScene().name == "Level4")
-                {
-                    red = new Color(1f, 0.49f, 0.49f, 1f);
-                    blue = new Color(0.38f, 0.61f, 1f, 1f);
-
-                    RandTrash = Random.Range(0, 100);
-
-                    if (RandTrash <= 5)
-                    {
-                        currentBlock.GetComponent<SwipeBlocks>().myColor = red;
-                        currentBlock.GetComponent<SwipeBlocks>().myTrash = -5;
-                    }
-
-                    else if (RandTrash > 5 && RandTrash <= 10)
-                    {
-                        currentBlock.GetComponent<SwipeBlocks>().myColor = blue;
-                        currentBlock.GetComponent<SwipeBlocks>().myTrash = 5;
-                    }
-
-                    else
-                    {
-                        currentBlock.GetComponent<SwipeBlocks>().myColor = Color.white;
-                        currentBlock.GetComponent<SwipeBlocks>().myTrash = 0;
-                    }
-                }
-
+                //The block is tracked by placing it into an array called allBlocks
                 allBlocks[i, j] = currentBlock;
             }
         }
@@ -97,55 +87,44 @@ public class SpawnBlocks : MonoBehaviour
         canStaticSetUp = true;
     }
 
-    IEnumerator StaticSetUp(int width, int height)
+    public IEnumerator StaticSetUp(int width, int height)
     {
         canStaticSetUp = false;
         canBeSelected = true;
         tempPosition = new Vector2(width, height);
 
-        RandBlock1 = Random.Range(0, 100);
+        /*Very similar to doing SetUp(). The difference is that staticSetUp prevents blocks from moving when new ones are
+         being made*/
+         var randBlock1 = Random.Range(0, 100);
+         var randBlock2 = 0;
 
-        if (RandBlock1 < 45)
-        {RandBlock2 = Random.Range(0, 5);}
+        if (randBlock1 < 45)
+        {
+            randBlock2 = Random.Range(0, 5);
+        }
 
-        else if (RandBlock1 >= 45 && RandBlock1 < 75)
-        {RandBlock2 = Random.Range(5, 9);}
+        else if (randBlock1 < 75 && randBlock1 >= 45)
+        {
+            randBlock2 = Random.Range(5, 9);
+        }
 
-        else if (RandBlock1 >= 75)
-        {RandBlock2 = Random.Range(9, 13);}
+        else if (randBlock1 >= 75)
+        {
+            randBlock2 = Random.Range(9, 13);
+        }
 
-        currentBlock = Instantiate(Blocks[RandBlock2], tempPosition, Quaternion.identity);
+        var currentBlock = Instantiate(Blocks[randBlock2], tempPosition, Quaternion.identity);
         allBlocks[width, height] = currentBlock;
         currentBlock.name = "(" + width + "," + height + ")";
         currentBlock.transform.SetParent(gameObject.transform);
-        currentBlock.GetComponent<Animator>().Play("GrowBlock");
-        if (SceneManager.GetActiveScene().name == "Level4")
-        {
-            red = new Color(1f, 0.49f, 0.49f, 1f);
-            blue = new Color(0.38f, 0.61f, 1f, 1f);
-            RandTrash = Random.Range(0, 100);
+        //currentBlock.GetComponent<Animator>().Play("GrowBlock");
+        currentBlock.transform.localScale = new Vector3(0, 0, 0);
+        LeanTween.scale(currentBlock.gameObject, new Vector3(1.25f, 1.25f, 1.25f), 1f).setEaseOutBounce();
 
-            if (RandTrash <= 5)
-            {
-                currentBlock.GetComponent<SwipeBlocks>().myColor = red;
-                currentBlock.GetComponent<SwipeBlocks>().myTrash = -5;
-            }
-
-            else if (RandTrash > 5 && RandTrash <= 10)
-            {
-                currentBlock.GetComponent<SwipeBlocks>().myColor = blue;
-                currentBlock.GetComponent<SwipeBlocks>().myTrash = 5;
-            }
-
-            else
-            {
-                currentBlock.GetComponent<SwipeBlocks>().myColor = Color.white;
-                currentBlock.GetComponent<SwipeBlocks>().myTrash = 0;
-            }
-        }
-        currentBlock.GetComponent<SwipeBlocks>().lockBlock = true;
+        var swipeBlock = currentBlock.GetComponent<SwipeBlocks>();
+        swipeBlock.lockBlock = true;
         yield return new WaitForSeconds(0.23f);
-        currentBlock.GetComponent<SwipeBlocks>().lockBlock = false;
+        swipeBlock.lockBlock = false;
         canStaticSetUp = true;
     }
 
@@ -173,50 +152,51 @@ public class SpawnBlocks : MonoBehaviour
             }
         }
 
-        if (swipeBlocks.SelectedBlocks.Count > 0)
+        if (selectedBlocks.Count > 0)
         {
-            for (int i = swipeBlocks.SelectedBlocks.Count - 1; i >= index - 1; i--)
-            { 
-                for (int f = swipeBlocks.SelectedBlocks[i].transform.childCount - 1; f >= 0; f--)
-                {Destroy(swipeBlocks.SelectedBlocks[i].transform.GetChild(f).gameObject);}
+            for (int i = selectedBlocks.Count - 1; i >= index - 1; i--)
+            {
+                for (int j = selectedBlocks[i].transform.childCount - 1; j >= 0; j--)
+                {
+                    Destroy(selectedBlocks[i].transform.GetChild(j).gameObject);
+                }
 
-                var blockColor = swipeBlocks.SelectedBlocks[i].GetComponent<SwipeBlocks>().myColor;
-                swipeBlocks.SelectedBlocks[i].GetComponent<SpriteRenderer>().material.SetColor("_Color", blockColor);
-                swipeBlocks.SelectedBlocks[i].GetComponent<SwipeBlocks>().selected = false;
-                swipeBlocks.IDCounter -= 1;
+                var swipeBlock = selectedBlocks[i].GetComponent<SwipeBlocks>();
+                var blockColor = swipeBlock.myColor;
+                selectedBlocks[i].GetComponent<SpriteRenderer>().material.SetColor("_Color", blockColor);
+                selectedBlocks[i].GetComponent<SwipeBlocks>().selected = false;
+                swipeBlock.IDCounter -= 1;
             }
 
             if (isDelete)
             {
                 {
                     canBeSelected = false;
-                    for (int j = swipeBlocks.SelectedBlocks.Count - 1; j >= index - 1; j--)
+                    for (int j = selectedBlocks.Count - 1; j >= index - 1; j--)
                     {
-                        destroyParticle = Instantiate(destroyParticlePrefabS, swipeBlocks.SelectedBlocks[j].gameObject.transform.position, Quaternion.identity);
-                        destroyParticle.transform.SetParent(swipeBlocks.SelectedBlocks[j].gameObject.transform);
+                        //var destroyParticleInst = Instantiate(destroyParticle, selectedBlocks[j].gameObject.transform.position, Quaternion.identity);
+                        //destroyParticleInst.transform.SetParent(selectedBlocks[j].gameObject.transform);
 
-                        if (swipeBlocks.SelectedBlocks[j].GetComponent<SwipeBlocks>().myColor != Color.white)
-                        {
-                            gameManager.trashCounter += swipeBlocks.SelectedBlocks[j].GetComponent<SwipeBlocks>().myTrash;
-                        }
-        
-                        Destroy(swipeBlocks.SelectedBlocks[j].gameObject, 1);
-                        swipeBlocks.SelectedBlocks[j].GetComponent<Animator>().Play("ShrinkBlock");
-                        swipeBlocks.IDCounter = 0;
+                        Destroy(selectedBlocks[j].gameObject, 1);
+                        //selectedBlocks[j].GetComponent<Animator>().Play("ShrinkBlock");
+                        LeanTween.scale(selectedBlocks[j].gameObject, new Vector2(0, 0), 1f);
+                        var swipeBlock = selectedBlocks[j].GetComponent<SwipeBlocks>();
+                        swipeBlock.IDCounter = 0;
                     }
                 }
             }
 
             else
             {
-                for (int i = swipeBlocks.SelectedBlocks.Count - 1; i >= index - 1; i--)
-                {swipeBlocks.SelectedBlocks.RemoveAt(i);}
+                for (int i = selectedBlocks.Count - 1; i >= index - 1; i--)
+                {selectedBlocks.RemoveAt(i);}
             }
         }
     }
 
     void Update()
     {
+        //If 
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -228,20 +208,24 @@ public class SpawnBlocks : MonoBehaviour
             }
         }
 
-        for (int j = 0; j <= swipeBlocks.SelectedBlocks.Count - 1; j++)
+        //Cleanup selectedBlocks if null items are present
+        for (int j = 0; j <= selectedBlocks.Count - 1; j++)
         {
-            if (swipeBlocks.SelectedBlocks[j] == null){swipeBlocks.SelectedBlocks.Remove(swipeBlocks.SelectedBlocks[j]);}
+            if (selectedBlocks[j] == null)
+            {
+                selectedBlocks.Remove(selectedBlocks[j]);
+            }
         }
 
-        if (swipeBlocks.SelectedBlocks.Count >= 2 && swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1] != null && swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].GetComponent<SwipeBlocks>().myID > 1 && swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].transform.childCount < 3)
+        if (selectedBlocks.Count >= 2 && selectedBlocks[selectedBlocks.Count - 1] != null && selectedBlocks[selectedBlocks.Count - 1].GetComponent<SwipeBlocks>().myID > 1 && selectedBlocks[selectedBlocks.Count - 1].transform.childCount < 3)
         {
-            if(!swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("ShrinkBlock"))
+            if(!selectedBlocks[selectedBlocks.Count - 1].GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("ShrinkBlock"))
             {
-                currentLine = Instantiate(LinePrefab, swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].transform.position, Quaternion.identity);
-                currentLine.transform.SetParent(swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].transform);
+                var currentLine = Instantiate(linePrefab, selectedBlocks[selectedBlocks.Count - 1].transform.position, Quaternion.identity);
+                currentLine.transform.SetParent(selectedBlocks[selectedBlocks.Count - 1].transform);
                 DrawLine currentLinePoints = currentLine.GetComponent<DrawLine>();
-                currentLinePoints.origin = swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 1].gameObject.transform.transform;
-                currentLinePoints.destination = swipeBlocks.SelectedBlocks[swipeBlocks.SelectedBlocks.Count - 2].gameObject.transform.transform;
+                currentLinePoints.origin = selectedBlocks[selectedBlocks.Count - 1].gameObject.transform.transform;
+                currentLinePoints.destination = selectedBlocks[selectedBlocks.Count - 2].gameObject.transform.transform;
             }
         }
 

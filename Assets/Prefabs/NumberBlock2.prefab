@@ -12,8 +12,6 @@ GameObject:
   - component: {fileID: 2451785127217152599}
   - component: {fileID: -2864661632349761760}
   - component: {fileID: -4244762729935773250}
-  - component: {fileID: 8428170667368491487}
-  - component: {fileID: -4751589095510471920}
   - component: {fileID: 7720909866536473441}
   m_Layer: 0
   m_Name: NumberBlock2
@@ -132,54 +130,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb3db696f91afd14ca0e79b54ac01044, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  myString: 2
   selectAudio: {fileID: 8300000, guid: cc66899e3d8f5a34ea1c928080f859cb, type: 3}
   removeAudio: {fileID: 8300000, guid: 0b8979ef0b072c044afd51ec6946efd9, type: 3}
-  myString: 
   sphere: {fileID: 9005302592388112012, guid: 0d16d153f49369c4ea817b95731cfda8, type: 3}
   blockClickPrefab: {fileID: 3144522324777203492, guid: 935c4519addd15149a42c7616bd65080,
     type: 3}
-  SelectedBlocks: []
   selected: 0
   lockBlock: 0
   firstSelect: 0
   animationState: 
   myID: 0
-  myTrash: 0
   IDCounter: 0
   myColor: {r: 1, g: 1, b: 1, a: 1}
---- !u!114 &8428170667368491487
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 981831509855973253}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a168efd33adaa4142b34b016d91ed7a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  blockStr: 2
---- !u!95 &-4751589095510471920
-Animator:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 981831509855973253}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: dace75c84da15f6499bf39f4011e2e88, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!82 &7720909866536473441
 AudioSource:
   m_ObjectHideFlags: 0

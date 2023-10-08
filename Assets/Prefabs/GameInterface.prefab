@@ -345,7 +345,6 @@ GameObject:
   - component: {fileID: 7819753145994222477}
   - component: {fileID: 6364027772722124255}
   - component: {fileID: 5463404297717933383}
-  - component: {fileID: 8744016536768733743}
   - component: {fileID: 2657832529322288796}
   m_Layer: 5
   m_Name: Fade
@@ -412,26 +411,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!95 &8744016536768733743
-Animator:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1562720266601789846}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: cb83d58107a38ef478e1ffc57e26151a, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!225 &2657832529322288796
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -2217,7 +2196,6 @@ GameObject:
   m_Component:
   - component: {fileID: 188319944350520315}
   - component: {fileID: 2268457899166067391}
-  - component: {fileID: 2268457899166067384}
   - component: {fileID: 8555458086095556943}
   m_Layer: 0
   m_Name: Spawner
@@ -2243,7 +2221,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2.8, y: -3.08}
+  m_AnchoredPosition: {x: -2.8, y: -3.54}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2268457899166067391
@@ -2281,21 +2259,6 @@ MonoBehaviour:
   - {fileID: 2550542300305751948, guid: 4e169ea474830314fbaac463afe78b55, type: 3}
   - {fileID: 2631257740787273613, guid: 678a7c48310f02248b761ce7ed27aa26, type: 3}
   canBeSelected: 0
---- !u!114 &2268457899166067384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2268457899166067389}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9b7ce9d0c7e0a64d82472065c16ec3f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  calcs: []
-  output: 0
-  calcsString: 
 --- !u!222 &8555458086095556943
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2815,7 +2778,6 @@ GameObject:
   - component: {fileID: 2268457899567652903}
   - component: {fileID: 2268457899567652902}
   - component: {fileID: 2268457899567652901}
-  - component: {fileID: 9193404127411078060}
   m_Layer: 5
   m_Name: EquateButton
   m_TagString: Untagged
@@ -2938,26 +2900,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!95 &9193404127411078060
-Animator:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2268457899567652923}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 56e9eb5fd2d394b4f896a1acbb00e984, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &2268457899581712637
 GameObject:
   m_ObjectHideFlags: 0
@@ -3146,7 +3088,6 @@ GameObject:
   - component: {fileID: 2268457899705819101}
   - component: {fileID: 2268457899705819100}
   - component: {fileID: 2268457899705819091}
-  - component: {fileID: 3475382105804929917}
   m_Layer: 5
   m_Name: ShuffleButton
   m_TagString: Untagged
@@ -3269,26 +3210,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!95 &3475382105804929917
-Animator:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2268457899705819089}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: f5216ae254dc7d149aefac8f357b7131, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &2268457899803576696
 GameObject:
   m_ObjectHideFlags: 0
@@ -3889,9 +3810,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 647a9af374fc045459311fbcf49c0808, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minTarget: 0
-  maxTarget: 0
+  minTarget: -300
+  maxTarget: 300
   gameMode: 0
+  playerNumber: 0
   currentCountdownTime: 75
   StartCountDownText: {fileID: 2268457899935339497}
   flashObj: {fileID: 0}
@@ -3908,8 +3830,11 @@ MonoBehaviour:
   equationResetFlag: 0
   scoreAddFlag: 0
   countdownTimerIsRunning: 0
-  playerNumber: 0
   trashCounter: 0
+  additionMode: 0
+  calcs: []
+  output: 0
+  calcsString: 
 --- !u!82 &4307926140599133895
 AudioSource:
   m_ObjectHideFlags: 0

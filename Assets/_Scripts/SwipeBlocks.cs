@@ -1,42 +1,36 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHandler
 {
+    [Header("String")]
+    public string myString;
+    
+    [Header("Properties")]
     private AudioSource sfxSource;
     public AudioClip selectAudio, removeAudio;
-    
     private float pitchValue = 1.0f;
-    private SpawnBlocks spawnBlocks;
-    
-    [HideInInspector]
-    public string myString;
-
-    public GameObject sphere;
-    public GameObject blockClickPrefab;
-
-    public List<GameObject> SelectedBlocks = new();
-
+    private SpawnBlocks spawner;
+    public GameObject sphere, blockClickPrefab;
     public bool selected, lockBlock, firstSelect;
-    private bool isBeingSelected, isBeingRemoved; //what??
     public string animationState;
-
-
     public int myID, IDCounter;
+    public Color myColor;
+
 
     private Animator blockAnim;
     private SpriteRenderer spriteRenderer;
     private GameManager gameManager;
-
-    public Color myColor;
+    private bool isBeingSelected, isBeingRemoved; //what??
     
+
     void Start()
     {
+        spawner = transform.parent.GetComponent<SpawnBlocks>();
+        
         gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
         lockBlock = false;
-        sfxSource.pitch = pitchValue;
         IDCounter = 0;
 
         selected = false;
@@ -44,40 +38,41 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         isBeingSelected = false;
         isBeingRemoved = false;
         animationState = "Idle";
-        
-        spawnBlocks = transform.parent.GetComponent<SpawnBlocks>();
-        
+
         blockAnim = GetComponent<Animator>();
         sfxSource = gameManager.GetComponent<AudioSource>();
-        myString = gameObject.GetComponent<AssignString>().blockStr;
-        blockAnim.Play("Idle");
+        sfxSource.pitch = pitchValue;
+        //blockAnim.Play("Idle");
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         spriteRenderer.material.SetColor("_Color", myColor);
     }
 
     void Update()
     {
-        if (SelectedBlocks.Count <= 0)
+        if (spawner != null)
         {
-            IDCounter = 0;
-            firstSelect = true;
-        }
-
-        if (transform.position.y >= 1 && SpawnBlocks.allBlocks[(int)transform.position.x, (int)transform.position.y - 1] == null && lockBlock == false)
-        {
-            for (int i = (int)transform.position.y; i >= 0; i--)
+            if (spawner.selectedBlocks.Count <= 0)
             {
-                if (SpawnBlocks.allBlocks[(int)transform.position.x, i] == null)
+                IDCounter = 0;
+                firstSelect = true;
+            }
+
+            if (transform.position.y >= 1 && spawner.allBlocks[(int)transform.position.x, (int)transform.position.y - 1] == null && lockBlock == false)
+            {
+                for (int i = (int)transform.position.y; i >= 0; i--)
                 {
-                    LeanTween.move(gameObject, new Vector2(transform.position.x, transform.position.y - 1), 0.21f);
+                    if (spawner.allBlocks[(int)transform.position.x, i] == null)
+                    {
+                        LeanTween.move(gameObject, new Vector2(transform.position.x, transform.position.y - 1), 0.21f).setEasePunch();
+                    }
                 }
             }
-        }
-        else
-        {
-            transform.position = new Vector2((int)transform.position.x, (int)transform.position.y);
-            SpawnBlocks.allBlocks[(int)transform.position.x, (int)transform.position.y] = gameObject;
-            gameObject.name = "(" + transform.position.x.ToString() + "," + transform.position.y.ToString() + ")";
+            else
+            {
+                transform.position = new Vector2((int)transform.position.x, (int)transform.position.y);
+                spawner.allBlocks[(int)transform.position.x, (int)transform.position.y] = gameObject;
+                gameObject.name = "(" + transform.position.x.ToString() + "," + transform.position.y.ToString() + ")";
+            }
         }
     }
 
@@ -85,18 +80,18 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
     {
         if (!selected && !isBeingRemoved)
         {
-            if (SelectedBlocks.Count <= 6 && spawnBlocks.canBeSelected)
+            if (spawner.selectedBlocks.Count <= 6 && spawner.canBeSelected)
             {
-                if (firstSelect && gameObject.tag != "Operation" && SelectedBlocks.Count < 1)
+                if (firstSelect && gameObject.tag != "Operation" && spawner.selectedBlocks.Count < 1)
                 {isBeingSelected = true; AddBlock();}
 
-                else if (SelectedBlocks.Count >= 1) 
+                else if (spawner.selectedBlocks.Count >= 1) 
                 {
-                    if(SelectedBlocks[SelectedBlocks.Count - 1].tag != gameObject.tag)
+                    if(spawner.selectedBlocks[spawner.selectedBlocks.Count - 1].tag != gameObject.tag)
                     {
-                        if ((int)gameObject.transform.position.x <= (int)SelectedBlocks[SelectedBlocks.Count - 1].transform.position.x + 1 && (int)gameObject.transform.position.x >= (int)SelectedBlocks[SelectedBlocks.Count - 1].transform.position.x - 1)
+                        if ((int)gameObject.transform.position.x <= (int)spawner.selectedBlocks[spawner.selectedBlocks.Count - 1].transform.position.x + 1 && (int)gameObject.transform.position.x >= (int)spawner.selectedBlocks[spawner.selectedBlocks.Count - 1].transform.position.x - 1)
                         {
-                            if ((int)gameObject.transform.position.y <= (int)SelectedBlocks[SelectedBlocks.Count - 1].transform.position.y + 1 && (int)gameObject.transform.position.y >= (int)SelectedBlocks[SelectedBlocks.Count - 1].transform.position.y - 1)
+                            if ((int)gameObject.transform.position.y <= (int)spawner.selectedBlocks[spawner.selectedBlocks.Count - 1].transform.position.y + 1 && (int)gameObject.transform.position.y >= (int)spawner.selectedBlocks[spawner.selectedBlocks.Count - 1].transform.position.y - 1)
                             {isBeingSelected = true; AddBlock();}
                         }
                     }
@@ -106,9 +101,9 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
 
         else if (selected && !isBeingSelected)
         {
-            if (SelectedBlocks.Contains(gameObject))
+            if (spawner.selectedBlocks.Contains(gameObject))
             {
-                spawnBlocks.RemoveBlock(myID, false);
+                spawner.RemoveBlock(myID, false);
                 sfxSource.PlayOneShot(removeAudio);
                 isBeingRemoved = true;
             }
@@ -132,7 +127,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         }
         else
         {
-            pitchValue = 1 + (SelectedBlocks.Count * 0.03f);
+            pitchValue = 1 + (spawner.selectedBlocks.Count * 0.03f);
             sfxSource.pitch = pitchValue;
         }
 
@@ -141,7 +136,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         IDCounter += 1;
         myID = IDCounter;
 
-        SelectedBlocks.Add(gameObject);
+        spawner.selectedBlocks.Add(gameObject);
         gameManager.calcs.Add(myString);
 
         var selectSphere = Instantiate(sphere, gameObject.transform.position, Quaternion.identity);
