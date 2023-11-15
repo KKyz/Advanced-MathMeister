@@ -1,28 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class ShowBestScore : MonoBehaviour
 {
     private Text bestScoreCounter;
     public bestScore thisBestScore;
-    public GameManager gameManager;
-    
+
     public enum bestScore
     {
         TimeTrial, 
         Level1,
         Level2,
         Level3,
-        Level4,
-        Level5
+        Level4
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        var save = SaveSystem.LoadPlayer();
+        var save = GameObject.Find("PlayerRecords").GetComponent<PlayerRecords>();
         
         bestScoreCounter = gameObject.GetComponent<Text>();
 
@@ -42,9 +38,6 @@ public class ShowBestScore : MonoBehaviour
                break;
            case bestScore.Level4:
                bestScoreCounter.text = save.bestLevel4.ToString("00000");
-               break;
-           case bestScore.Level5:
-               bestScoreCounter.text = save.bestLevel5.ToString("00000");
                break;
         }
     }

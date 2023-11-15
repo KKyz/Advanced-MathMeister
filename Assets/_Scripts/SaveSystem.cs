@@ -43,13 +43,16 @@ public static class SaveSystem
         }
     }
 
-    public static void SaveCheck(PlayerRecords player)
+    public static bool SaveCheck(PlayerRecords player)
     {
         string path = Application.persistentDataPath + "/player.kay";
 
         if (!File.Exists(path))
         {
             SavePlayer(player);
+            return false;
         }
+        
+        return true;
     }
 }

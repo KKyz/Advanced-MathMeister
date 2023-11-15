@@ -46,21 +46,19 @@ public class OptionsFunctions : MonoBehaviour
         AlertMessage.GetComponent<Animator>().Play("AlertMessageExit");
     }
 
-    public void DisableBG(bool isActive)
+    public void DisableBG()
     {
-        if (BGToggle.GetComponent<Toggle>().isOn == true)
+        if (BGToggle.GetComponent<Toggle>().isOn)
         {
             PlayerPrefs.SetInt("BGActive", 1);
-            isActive = false;
         }
-        else if (BGToggle.GetComponent<Toggle>().isOn == false)
+        else
         {
             PlayerPrefs.SetInt("BGActive", 0);
-            isActive = true; 
         }
     }
     public void EraseAll()
     {
-        PlayerPrefs.DeleteAll();
+        SaveSystem.ClearPlayer();
     }
 }

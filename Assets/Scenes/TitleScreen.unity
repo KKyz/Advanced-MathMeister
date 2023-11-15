@@ -418,7 +418,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   thisBestScore: 0
-  gameManager: {fileID: 0}
 --- !u!114 &150602528
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3452,21 +3451,3 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c3997bf37f8c5b34a9e9182163b88817, type: 3}
---- !u!1 &8146649715772841451 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4191495495570442245, guid: c3997bf37f8c5b34a9e9182163b88817,
-    type: 3}
-  m_PrefabInstance: {fileID: 8146649715772841450}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &8146649715772841452
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8146649715772841451}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1c83bd94295a584da590f09c8fe2bec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

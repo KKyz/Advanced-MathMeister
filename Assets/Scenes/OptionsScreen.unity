@@ -633,7 +633,7 @@ MonoBehaviour:
       - m_Target: {fileID: 1537178524}
         m_TargetAssemblyTypeName: OptionsFunctions, Assembly-CSharp
         m_MethodName: DisableBG
-        m_Mode: 6
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -3441,8 +3441,6 @@ GameObject:
   - component: {fileID: 2119668620}
   - component: {fileID: 2119668619}
   - component: {fileID: 2119668618}
-  - component: {fileID: 2119668617}
-  - component: {fileID: 2119668616}
   m_Layer: 5
   m_Name: ConfirmButton
   m_TagString: Untagged
@@ -3471,39 +3469,6 @@ RectTransform:
   m_AnchoredPosition: {x: -90.06725, y: 301.0628}
   m_SizeDelta: {x: 158.6925, y: 64.6582}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!95 &2119668616
-Animator:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2119668614}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 4ca635b0428e8f741b2fc9012bb1036e, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &2119668617
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2119668614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f04b9bad174117c4a8bd125e04d69b33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ClickEffect: {fileID: 0}
 --- !u!114 &2119668618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3555,19 +3520,6 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: PlayCanvasSFX
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8300000, guid: 80037e93ed3d95e458354b39311a24a3,
-            type: 3}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.AudioClip, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 

@@ -2,23 +2,27 @@
 
 public class BackgroundTile : MonoBehaviour
 {
-    public SpawnBlocks spawner;
+    public GameManager gameManager;
 
     void Start()
     {
-        spawner = transform.parent.GetComponent<SpawnBlocks>();
+        gameManager = transform.parent.parent.GetComponent<GameManager>();
     }
+    
     void Update()
     {
-        for (int i = spawner.transform.childCount - 1; i >= 0; i--)
+        if (gameManager.spawner != null)
         {
-            if (spawner.transform.GetChild(i).name == "(" +  transform.position.x + "," + transform.position.y + ")")
+            for (int i = gameManager.spawner.childCount - 1; i >= 0; i--)
             {
-                spawner.allBlocks[(int)transform.position.x, (int)transform.position.y] = spawner.transform.GetChild(i).gameObject;
-            }
-            else
-            {
-                spawner.allBlocks[(int)transform.position.x, (int)transform.position.y] = null;
+                if (gameManager.spawner.GetChild(i).name == "(" +  transform.position.x + "," + transform.position.y + ")")
+                {
+                    gameManager.allBlocks[(int)transform.position.x, (int)transform.position.y] = gameManager.spawner.GetChild(i).GetComponent<SwipeBlocks>();
+                }
+                else
+                {
+                    gameManager.allBlocks[(int)transform.position.x, (int)transform.position.y] = null;
+                }
             }
         }
     }

@@ -6,13 +6,11 @@ public class StartCountDown : MonoBehaviour
 {
     public float timeRemaining;
     public Text countDownText;
-    public SpawnBlocks spawnBlocks;
     private GameManager gameManager;
 
     private void Awake()
     {
         gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
-        spawnBlocks = gameManager.transform.Find("Spawner").GetComponent<SpawnBlocks>();
         timeRemaining = 3f;
         countDownText = GetComponent<Text>();
         gameObject.SetActive(true);
@@ -32,26 +30,14 @@ public class StartCountDown : MonoBehaviour
             gameManager.countdownTimerIsRunning = true;
             StartCoroutine(Fade.SemiFadeOut());
             gameObject.SetActive(false);
-            spawnBlocks.canBeSelected = true;
-
-            if (SceneManager.GetActiveScene().name == "Level4")
-            {
-                var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
-                CPU.canAct = true;
-            }
+            gameManager.canBeSelected = true;
         }
     }
 
     private void BlockOff()
     { 
-        gameManager.countdownTimerIsRunning = false;
-       spawnBlocks.canBeSelected = false;
-
-       if (SceneManager.GetActiveScene().name == "Level4")
-       {
-           var CPU = transform.Find("LabelCanvas").Find("CPU").GetComponent<CPU>();
-           CPU.canAct = false;
-       }
+        gameManager.countdownTimerIsRunning = false; 
+        gameManager.canBeSelected = false;
     }
     void DisplayTime(float timeToDisplay)
     {
