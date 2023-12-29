@@ -5,13 +5,13 @@ using UnityEngine.Audio;
 //All functions here have been optimized. Nothing more to do here.
 public class OptionsFunctions : MonoBehaviour
 {
-    private GameObject AlertMessage, BGToggle, BGMSlider, SFXSlider;
+    private GameObject alertMessage, BGToggle, BGMSlider, SFXSlider;
     public AudioMixer BGMMixer, SFXMixer;
     private int BGPref;
 
     void Start()
     {
-        AlertMessage = GameObject.Find("AlertMessage");
+        alertMessage = transform.Find("PersonalOptionsHolder").Find("AlertMessage").gameObject;
         BGToggle = GameObject.Find("Toggle");
         BGMSlider = GameObject.Find("BGMSlider");
         SFXSlider = GameObject.Find("SFXSlider");
@@ -38,12 +38,12 @@ public class OptionsFunctions : MonoBehaviour
 
     public void PullUpAlert()
     {
-        AlertMessage.GetComponent<Animator>().Play("AlertMessageEnter");
+        LeanTween.moveLocalX(alertMessage, 170, 1f).setEaseOutSine();
     }
 
     public void DismissAlert()
     {
-        AlertMessage.GetComponent<Animator>().Play("AlertMessageExit");
+        LeanTween.moveLocalX(alertMessage, 943, 1f).setEaseInSine();
     }
 
     public void DisableBG()

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,7 +11,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
     private AudioSource sfxSource;
     public AudioClip selectAudio, removeAudio;
     public GameObject sphere, blockClickPrefab;
-    public bool selected, lockBlock, firstSelect;
+    public bool selected, lockBlock, firstSelect, isBonusBlock, isMoving;
     public string animationState;
     public int myID, IDCounter;
     public Color myColor;
@@ -21,7 +21,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
     private Animator blockAnim;
     private SpriteRenderer spriteRenderer;
     private GameManager gameManager;
-    private bool isBeingSelected, isBeingRemoved, isSuperBlock; //literally used to prevent number being selected/unselected too quickly. So stupid, such a bad solution. i give it a D-
+    private bool isBeingSelected, isBeingRemoved; //literally used to prevent number being selected/unselected too quickly. So stupid, such a bad solution. i give it a D-
     [SerializeField]private int breakCounter;
 
     void Start()
@@ -29,7 +29,8 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         gameManager = GameObject.Find("GameInterface").GetComponent<GameManager>();
         lockBlock = false;
         IDCounter = 0;
-        breakCounter = 5;
+        isMoving = false;
+        breakCounter = 3;
 
         selected = false;
         firstSelect = true;
@@ -46,20 +47,20 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         {
             spriteRenderer.sprite = breakSprites[breakCounter - 1];
         }
-
-        var randval = Random.Range(0, 5);
+        
+        var randval = Random.Range(0, 50);
         
         {
-            if (randval > 1)
+            if (randval <= 1 && gameManager.gameMode != GameMode.Level4)
             {
-                myColor = Color.white;
-                isSuperBlock = false;
+                myColor = new Color(1f, 165/255f, 0f);
+                isBonusBlock = true;
             }
 
             else
             {
-                myColor = new Color(1f, 165/255f, 0f);
-                isSuperBlock = true;
+                myColor = Color.white;
+                isBonusBlock = false;
             }
         }
 
@@ -84,25 +85,23 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
                 // !lockBlock: Not in a condition where block is in a fixed pos (e.g. when shuffling)
                 if (transform.position.y >= 1 && gameManager.allBlocks[(int)transform.position.x, (int)transform.position.y - 1] == null && !lockBlock)
                 {
-                    LeanTween.move(gameObject, new Vector2(transform.position.x, (int)transform.position.y - 1), 0.21f);
-                    
-                    /*
-                    for (int i = (int)transform.position.y; i >= 0; i--)
-                    {
-                        if (gameManager.allBlocks[(int)transform.position.x, i] == null)
-                        {
-                            
-                        }
-                    }*/
+                    LeanTween.move(gameObject, new Vector2((int)transform.position.x, (int)transform.position.y - 1), 0.15f);
+                    isMoving = true;
                 }
                 else
                 {
-                    //transform.position = new Vector2((int)transform.position.x, (int)transform.position.y);
                     gameManager.allBlocks[(int)transform.position.x, (int)transform.position.y] = this;
-                    gameObject.name = "(" + transform.position.x + "," + transform.position.y + ")";
+                    gameObject.name = "(" + (int)transform.position.x + "," + (int)transform.position.y + ")";
+                    StartCoroutine(resetIsMoving());
                 }
             }
         }
+    }
+
+    private IEnumerator resetIsMoving()
+    {
+        yield return new WaitForSeconds(0.3f);
+        isMoving = false;
     }
 
     //When block is clicked on
@@ -192,10 +191,12 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
         spriteRenderer.color = Color.yellow;
     }
 
-    public void ReduceBreakCounter()
+    public IEnumerator ReduceBreakCounter()
     {
         int randomInt = 2;
         //if a move has been made in level 4, reduce break counter until block breaks
+
+        yield return new WaitForSeconds(0.15f);
 
         if (breakCounter > 1)
         {
@@ -203,7 +204,7 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
             spriteRenderer.sprite = breakSprites[breakCounter - 1];
         }
         
-        else
+        if (breakCounter <= 0)
         {
             while (randomInt == 2)
             {

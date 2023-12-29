@@ -4,8 +4,8 @@ public class PlayerData
     public int bestLevel1;
     public int bestLevel2;
     public int bestLevel3;
-    public int bestLevel4;
-    public float bestTimeTrial;
+    public float bestLevel4;
+    public int bestTimeTrial;
     public PlayerData(PlayerRecords player)
     {
         bestLevel1 = player.bestLevel1;

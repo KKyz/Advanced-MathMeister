@@ -17,6 +17,7 @@ public class Fade : MonoBehaviour
         fadeBlock = fadeObj.GetComponent<CanvasGroup>();
 
         int buildIndex = SceneManager.GetActiveScene().buildIndex;
+        
         if (buildIndex == 0 || buildIndex == 2 || buildIndex == 3 || buildIndex == 4 || buildIndex == 5 ||
             buildIndex == 10)
         {
@@ -32,6 +33,7 @@ public class Fade : MonoBehaviour
     {
         LeanTween.alpha(fadeColor.rectTransform, 1f, 1f).setEase(LeanTweenType.linear); 
         fadeBlock.blocksRaycasts = true;
+        Debug.Log("FadeIn");
         yield return 0;
     }
 
@@ -48,7 +50,6 @@ public class Fade : MonoBehaviour
     public static IEnumerator SemiFadeIn()
     {
         LeanTween.alpha(fadeColor.rectTransform, 0.3f, 1f).setEase(LeanTweenType.linear);
-
         fadeBlock.blocksRaycasts = true;
         yield return 0;
     }

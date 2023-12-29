@@ -6,19 +6,26 @@ using UnityEngine.UI;
 using B83.LogicExpressionParser;
 using Random=UnityEngine.Random;
 
+public enum GameMode
+{
+    TimeTrial,
+    Level1,
+    Level2,
+    Level3,
+    Level4
+}
+
 public class GameManager : MonoBehaviour
 {
     [Header("Game Settings")] public int minTarget;
     public int maxTarget;
     public GameMode gameMode;
     public int playerNumber;
-    public float currentCountdownTime = 150f;
+    public float countDownTimer = 60f;
     public int width;
     public int height;
 
-    [Header("Game Objects")] public GameObject StartCountDownText;
-
-    public GameObject flashObj;
+    public SpriteRenderer flashObj;
 
     //public GameObject ChangeParticle;
     //public GameObject sparkleParticle; 
@@ -48,15 +55,18 @@ public class GameManager : MonoBehaviour
     public AudioClip GoalChange;
     public AudioClip audienceGaspFar;
     public AudioClip audienceGaspClose;
+    public AudioClip audienceGaspMid;
+    public bool countDownTimerIsRunning;
 
-    [HideInInspector] public bool equationResetFlag, scoreAddFlag, countdownTimerIsRunning, scoreReset;
+    [HideInInspector] public bool equationResetFlag;
     [HideInInspector] public float bestTimeTrial;
     [HideInInspector] public Transform spawner;
 
     private bool canShuffle, countDownSoundActive, triggeredVictory, newCurrentTextFading;
     [SerializeField] private bool additionMode;
-    private AudioSource SFXSource;
+    private AudioSource SFXSource, finalCountdownSource;
     private Button shuffleButton, equateButton, trashButton;
+    private string currentFlash;
 
     private Text currentCounter,
         trashCountText,
@@ -68,22 +78,21 @@ public class GameManager : MonoBehaviour
         newCurrentCounter,
         newCurrentBack,
         playerScoreText,
-        hiScoreCounter,
-        hiScoreLabel,
-        uncalculatedText;
+        playerScoreLabel,
+        moveCounterText,
+        moveCounterLabel,
+        uncalculatedText,
+        startCountdownText;
 
     private ColorBlock shuffleColorBlock, equateColorBlock;
     private Color newCurrentColor, newCurrentBackColor, goldColor;
     private SwipeBlocks swipeBlocks;
-    private StartCountDown startCountDown;
     private AudioSource BGMSource;
-    private float musicPos, CPCountdownTime, timeLimit, CountDownTimer;
-    private int equationCounter, shuffleCounter, playerScore;
+    private float musicPos, timeLimit, startCountDownTime;
+    private int equationCounter, shuffleCounter, playerScore, moveCounter;
     private GameObject CPUTrashLevelText, resultsCanvas;
 
     [SerializeField] private int shuffleCooldown;
-
-    public static bool haveGasped;
 
     public List<string> calcs = new();
     public int output;
@@ -91,15 +100,7 @@ public class GameManager : MonoBehaviour
     private Parser parser = new();
     private NumberExpression numExpression;
     private PlayerRecords playerSave;
-
-    public enum GameMode
-    {
-        TimeTrial,
-        Level1,
-        Level2,
-        Level3,
-        Level4
-    }
+    private int debugFlashCount = 0;
 
     void Awake()
     {
@@ -110,6 +111,7 @@ public class GameManager : MonoBehaviour
         catch (Exception e)
         {
             playerSave = Instantiate(playerRecords).GetComponent<PlayerRecords>();
+            playerSave.name = "PlayerRecords";
         }
 
         //getting scripts for necessary game functions (equating items, spawning blocks, etc.)
@@ -117,6 +119,8 @@ public class GameManager : MonoBehaviour
         equationCounter = 0;
         shuffleCounter = 5;
         shuffleCooldown = 3;
+        moveCounter = 10;
+        startCountDownTime = 4f;
         spawner = transform.Find("Spawner");
         shuffleButton = transform.Find("ButtonCanvas").Find("ShuffleButton").GetComponent<Button>();
         equateButton = transform.Find("ButtonCanvas").Find("EquateButton").GetComponent<Button>();
@@ -128,8 +132,7 @@ public class GameManager : MonoBehaviour
         canShuffle = true;
 
         playerNumber = Random.Range(minTarget, maxTarget);
-
-        scoreAddFlag = false;
+        
         newCurrentTextFading = false;
         triggeredVictory = false;
         currentCounter = transform.Find("LabelCanvas").Find("YourNumberCounter").GetComponent<Text>();
@@ -137,12 +140,14 @@ public class GameManager : MonoBehaviour
         uncalculatedText = transform.Find("LabelCanvas").Find("UncalculatedNumberCounter").GetComponent<Text>();
         newCurrentCounter = transform.Find("LabelCanvas").Find("CalculatedNumberCounter").GetComponent<Text>();
         newCurrentBack = transform.Find("LabelCanvas").Find("CalculatedNumberCounterBack").GetComponent<Text>();
+        startCountdownText = transform.Find("BGCanvas").Find("StartCountdown").GetComponent<Text>();
         newCurrentColor = newCurrentCounter.color;
         newCurrentBackColor = newCurrentBack.color;
         goldColor = new Color(255, 215, 0);
 
         SFXSource = gameObject.GetComponent<AudioSource>();
         BGMSource = transform.Find("BGMSource").GetComponent<AudioSource>();
+        finalCountdownSource = transform.Find("BGCanvas").GetComponent<AudioSource>();
 
         timeLimit = 45f;
         musicPos = 0f;
@@ -153,18 +158,16 @@ public class GameManager : MonoBehaviour
         countDownSoundActive = false;
         timerText = transform.Find("LabelCanvas").Find("TimeCounter").GetComponent<Text>();
         timerLabel = transform.Find("LabelCanvas").Find("TimerLabel").GetComponent<Text>();
-        countdownTimerIsRunning = false;
-        DisplayTime(currentCountdownTime, timerText);
+        countDownTimerIsRunning = false;
+        DisplayTime(countDownTimer, timerText);
 
-        haveGasped = false;
         equateButtonText = equateButton.transform.Find("EquateText").GetComponent<Text>();
         shuffleButtonText = shuffleButton.transform.Find("ShuffleText").GetComponent<Text>();
         operationText = transform.Find("ButtonCanvas").Find("SwitchButton").Find("Text").GetComponent<Text>();
-        hiScoreCounter = transform.Find("LabelCanvas").Find("Hi-ScoreCounter").GetComponent<Text>();
-        hiScoreLabel = transform.Find("LabelCanvas").Find("Hi-ScoreLabel").GetComponent<Text>();
+        moveCounterText = transform.Find("LabelCanvas").Find("MoveCounter").GetComponent<Text>();
+        moveCounterLabel = transform.Find("LabelCanvas").Find("MoveLabel").GetComponent<Text>();
         additionMode = true;
-        SFXSource.Stop();
-        flashObj = GameObject.Find("FlashBG");
+        flashObj = GameObject.Find("FlashBG").GetComponent<SpriteRenderer>();
 
         //Initialise output and calc string to be 0
         output = 0;
@@ -173,41 +176,51 @@ public class GameManager : MonoBehaviour
         calcs.Clear();
 
         playerScoreText = transform.Find("LabelCanvas").Find("ScoreCounter").GetComponent<Text>();
+        playerScoreLabel = transform.Find("LabelCanvas").Find("ScoreLabel").GetComponent<Text>();
 
-        if (scoreReset)
+        if (gameMode == GameMode.Level4)
         {
-            playerScore = 0;
+            playerScoreText.gameObject.SetActive(false);
+            playerScoreLabel.gameObject.SetActive(false);
         }
 
         canAddBlock = true;
         canBeSelected = false;
         allBlocks = new SwipeBlocks[width, height];
-        AddAllBlocks(width, height);
+        AddAllBlocks();
         
-        if (gameMode == GameMode.Level3)
+        if (gameMode == GameMode.Level2)
         {
             timerText.gameObject.SetActive(false);
             timerLabel.gameObject.SetActive(false);
-            hiScoreCounter.gameObject.SetActive(true);
-            hiScoreLabel.gameObject.SetActive(true);
+            moveCounterText.gameObject.SetActive(true);
+            moveCounterLabel.gameObject.SetActive(true);
+
+            moveCounterText.text = moveCounter.ToString();
         }
         else
         {
             timerText.gameObject.SetActive(true);
             timerLabel.gameObject.SetActive(true);
-            hiScoreCounter.gameObject.SetActive(false);
-            hiScoreLabel.gameObject.SetActive(false);
+            moveCounterText.gameObject.SetActive(false);
+            moveCounterLabel.gameObject.SetActive(false);
+        }
+
+        if (gameMode == GameMode.Level4)
+        {
+            timerLabel.text = "Timer: ";
         }
 
         StartCoroutine(RefreshShuffle());
+        
+        FlashScreen();
     }
 
     //AddAllBlocks instantiates all blocks SIMULTANEOUSLY, while AddBlock instantiates ONE BY ONE
-    public void AddAllBlocks(int width, int height)
+    public void AddAllBlocks()
     {
         //Initial setup w/o any special rules, used in start and when shuffling
         canAddBlock = false;
-        canBeSelected = true;
 
         //Clears out all contents in game object
         foreach (Transform child in spawner)
@@ -262,6 +275,16 @@ public class GameManager : MonoBehaviour
         }
 
         canAddBlock = true;
+        
+        List<String> allBlockNames = new();
+        foreach (var block in allBlocks)
+        {
+            if (block != null)
+                allBlockNames.Add(block.gameObject.name);
+        }
+
+        Debug.Log($"[{string.Join(",", allBlockNames)}]");
+        selectedBlocks.Clear();
     }
 
     private IEnumerator AddBlock(int width, int height)
@@ -289,7 +312,7 @@ public class GameManager : MonoBehaviour
             randBlock2 = Random.Range(9, 13);
         }
         
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(0.08f);
         var currentBlock = Instantiate(Blocks[randBlock2], tempPosition, Quaternion.identity);
         currentBlock.name = "(" + width + "," + height + ")";
         currentBlock.transform.SetParent(spawner);
@@ -297,7 +320,7 @@ public class GameManager : MonoBehaviour
         LeanTween.scale(currentBlock.gameObject, new Vector3(1.25f, 1.25f, 1.25f), 1f).setEaseOutBounce();
 
         var currentSwipeBlock = currentBlock.GetComponent<SwipeBlocks>();
-        //currentSwipeBlock.lockBlock = true;
+        currentSwipeBlock.lockBlock = true;
         yield return new WaitForSeconds(0.25f);
         
         currentSwipeBlock.lockBlock = false;
@@ -306,35 +329,7 @@ public class GameManager : MonoBehaviour
         allBlocks[width, height] = currentSwipeBlock;
 
         yield return new WaitForSeconds(0.3f);
-        checkForDuplicates();
-        
-    }
 
-    private void checkForDuplicates()
-    {
-        var index = 0;
-        List<SwipeBlocks> allBlocksToCheck = new();
-        
-        foreach (var block in allBlocks)
-        {
-            allBlocksToCheck.Add(block);
-            index++;
-        }
-        
-        Debug.LogWarning(allBlocksToCheck.Count);
-
-        for (int i = 0; i < allBlocksToCheck.Count - 1; i++)
-        {
-            var block1 = allBlocksToCheck[i];
-            var block2 = allBlocksToCheck[i + 1];
-
-            if (block1 != null && block2 != null && block1.name == block2.name)
-            {
-                Debug.LogWarning("DUPLICATE FOUND!");
-                Destroy(block2.gameObject);
-                allBlocksToCheck.Remove(block2);
-            }
-        }
     }
 
     public void DeleteSelectedBlocks()
@@ -346,6 +341,11 @@ public class GameManager : MonoBehaviour
             {
                 //var destroyParticleInst = Instantiate(destroyParticle, block.gameObject.transform.position, Quaternion.identity);
                 //destroyParticleInst.transform.SetParent(block.gameObject.transform);
+
+                foreach (Transform child in block.transform)
+                {
+                    Destroy(child.gameObject);
+                }
 
                 Destroy(block.gameObject, 1f);
                 block.IDCounter = 0;
@@ -404,12 +404,18 @@ public class GameManager : MonoBehaviour
             
                 DeleteSelectedBlocks();
 
-                AddAllBlocks(5, 4);
+                AddAllBlocks();
                 StartCoroutine(RefreshShuffle());
 
                 if (gameMode == GameMode.Level4)
                 {
                     shuffleCounter -= 1;
+                }
+                
+                else if (gameMode == GameMode.Level2)
+                {
+                    moveCounter--;
+                    moveCounterText.text = moveCounter.ToString();
                 }
 
                 SFXSource.PlayOneShot(shuffleSound, 0.7f);
@@ -429,6 +435,7 @@ public class GameManager : MonoBehaviour
         shuffleButton.colors = shuffleColorBlock;
         LeanTween.rotateZ(shuffleButton.gameObject, -180, 0.3f);
         yield return new WaitForSeconds(1f);
+        equationResetFlag = true;
 
         if (gameMode == GameMode.Level3)
         {
@@ -438,7 +445,6 @@ public class GameManager : MonoBehaviour
             shuffleColorBlock.highlightedColor = new Color(1, 0, 0, 1);
             shuffleButton.colors = shuffleColorBlock;
             LeanTween.rotateZ(shuffleButton.gameObject, 0, 0.3f);
-            equationResetFlag = true;
             canShuffle = true;
         }
     }
@@ -457,6 +463,41 @@ public class GameManager : MonoBehaviour
                 playerNumber -= output;
             }
 
+            //Audience Gasp Sounds
+            switch (playerNumber)
+            {
+                case 10:
+                    SFXSource.PlayOneShot(audienceGaspFar, 1f);
+                    break;
+                case 5:
+                    SFXSource.PlayOneShot(audienceGaspMid, 1f);
+                    break;
+                case 1:
+                    SFXSource.PlayOneShot(audienceGaspClose, 1f);
+                    break;
+                case -10:
+                    SFXSource.PlayOneShot(audienceGaspFar, 1f);
+                    break;
+                case -5:
+                    SFXSource.PlayOneShot(audienceGaspMid, 1f);
+                    break;
+                case -1:
+                    SFXSource.PlayOneShot(audienceGaspClose, 1f);
+                    break;
+                
+            }
+
+            if (gameMode == GameMode.TimeTrial)
+            {
+                foreach (var block in selectedBlocks)
+                {
+                    if (block.isBonusBlock)
+                    {
+                        AddPoints(100);
+                    }
+                }
+            }
+
             //Aims to destroy all objects in selectedBlocks
             DeleteSelectedBlocks();
 
@@ -465,12 +506,22 @@ public class GameManager : MonoBehaviour
 
             SFXSource.PlayOneShot(equateSound, 0.7f);
             newCurrentCounter.text = "???";
-            haveGasped = false;
 
+            // For level 3, reduce break counter if column changes
             foreach (var block in allBlocks)
             {
-                if (block != null && block.myString == "") 
-                    block.ReduceBreakCounter();
+                //If there is a breakable block, check if the column has moved
+                if (block != null && block.myString == "")
+                {
+                    Debug.Log(block.name);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (allBlocks[Convert.ToInt32(block.name[1]), i] != null && allBlocks[Convert.ToInt32(block.name[1]), i].isMoving)
+                        {
+                            StartCoroutine(block.ReduceBreakCounter());
+                        }
+                    }
+                }
             }
 
             if (gameMode != GameMode.Level3)
@@ -488,7 +539,6 @@ public class GameManager : MonoBehaviour
                     shuffleColorBlock.highlightedColor = new Color(1, 0, 0, 1);
                     shuffleButton.colors = shuffleColorBlock;
                     LeanTween.rotateZ(shuffleButton.gameObject, 0, 0.3f);
-                    equationResetFlag = true;
                     canShuffle = true;
                 }
             }
@@ -496,29 +546,124 @@ public class GameManager : MonoBehaviour
             //var thisSparkleParticle = Instantiate(sparkleParticle, playerNumber.gameObject.transform.position, Quaternion.identity);
             //Destroy(thisSparkleParticle, 2f);
         }
+        
+        //Add Points and time depending on time left
+        if (playerNumber == 0)
+        {
+            if (gameMode == GameMode.TimeTrial || gameMode == GameMode.Level1 || gameMode == GameMode.Level3)
+            {
+                switch (countDownTimer)
+                {
+                    case var timer when countDownTimer < 10:
+                        AddPoints(100);
+                        break;
+            
+                    case var timer when (countDownTimer >= 30 && countDownTimer < 60):
+                        AddPoints(150);
+                        break;
+            
+                    case var timer when (countDownTimer >= 60 && countDownTimer < 90):
+                        AddPoints(200);
+                        break;
+                
+                    case var timer when (countDownTimer >= 90 && countDownTimer < 120):
+                        AddPoints(250);
+                        break;
+
+                    case var timer when countDownTimer >= 120:
+                        AddPoints(350);
+                        break;
+                }
+                
+                switch (equationCounter)
+                {
+                    case 2:
+                        countDownTimer += 15;
+                        break;
+                
+                    case 3:
+                        countDownTimer += 10;
+                        break;
+                
+                    case 4:
+                        countDownTimer += 5;
+                        break;
+                }
+
+                equationCounter = 0;
+            }
+            
+        }
+
+        if (gameMode == GameMode.Level2)
+        {
+            moveCounter--;
+            moveCounterText.text = moveCounter.ToString();
+        }
+        
+        //Change BG color during event
+        FlashScreen();
+    }
+    
+    private void FlashScreen()
+    {
+        if (flashObj != null && gameMode != GameMode.Level4)
+        {
+            switch (playerNumber)
+            {
+                case var number when (playerNumber >= 20):
+                    currentFlash = "YellowFlash";
+                    break;
+                case var number when (playerNumber <= 3 && playerNumber > 0):
+                    currentFlash = "RapidYellowFlash";
+                    break;
+                case var number when (playerNumber >= -3 && playerNumber < 0):
+                    currentFlash = "RapidVioletFlash";
+                    break;
+                case var number when (playerNumber <= -20):
+                    currentFlash = "VioletFlash";
+                    break;
+                default:
+                    currentFlash = "NullFlash";
+                    break;
+            }
+            
+            StartCoroutine(currentFlash);
+        } 
     }
 
     private IEnumerator DisplayResults()
     {
-        triggeredVictory = true;
         canBeSelected = false;
-
+        finalCountdownSource.Pause();
         BGMSource.Pause();
+        yield return new WaitForSeconds(1.5f);
+        
+        BGMSource.clip = VictoryBGM;
         musicPos = BGMSource.time;
         BGMSource.loop = false;
         BGMSource.time = 0f;
         BGMSource.Play();
-
+        
         resultsCanvas.SetActive(true);
-        for (int i = 0; i <= resultsCanvas.transform.childCount - 1; i++)
+        
+        Text yourResults = transform.Find("BGCanvas").Find("ResultsScreen").Find("YourTimeLabel").Find("YourTimeCounter")
+            .GetComponent<Text>();
+
+        if (gameMode == GameMode.Level4)
         {
-            resultsCanvas.transform.GetChild(i).gameObject.SetActive(true);
-            yield return new WaitForSeconds(0.5f);
+            DisplayTime(countDownTimer, yourResults);
+        }
+
+        else
+        {
+            yourResults.text = playerScore.ToString("00000");
         }
     }
 
     private IEnumerator PlayBGMSource()
     {
+        yield return new WaitForSeconds(0.1f);
         BGMSource.loop = false;
         BGMSource.clip = StartCountdownSound;
         BGMSource.time = 0f;
@@ -528,11 +673,6 @@ public class GameManager : MonoBehaviour
         BGMSource.clip = LevelBGM;
         BGMSource.time = musicPos;
         BGMSource.Play();
-    }
-    
-    void AddTime(int timeAdded)
-    {
-        currentCountdownTime += timeAdded;
     }
 
     public void DisplayTime(float timeToDisplay, Text textToDisplay)
@@ -560,13 +700,45 @@ public class GameManager : MonoBehaviour
         //var thisSpark = Instantiate(SparksParticle, gameObject.transform.position, Quaternion.identity);
         //thisSpark.transform.SetParent(null);
         playerScore += points;
-        scoreAddFlag = false;
+        playerScoreText.text = playerScore.ToString("00000");
         //Destroy(thisSpark, 2f);
     }
-    
+
+    public void DEBUGTriggerEnd()
+    {
+        StartCoroutine(Fade.FadeIn());
+        StartCoroutine(DisplayResults());
+    }
+
     public void Update()
     {
+        #region Initial Countdown
+
+        if (startCountDownTime > 1)
+        {
+            countDownTimerIsRunning = false;
+            canBeSelected = false;
+            startCountDownTime -= Time.deltaTime;
+            startCountdownText.text = "" + (int)startCountDownTime;
+        }
+        else
+        {
+            if (!countDownTimerIsRunning)
+                StartCoroutine(Fade.SemiFadeOut());
+
+            countDownTimerIsRunning = true;
+            startCountDownTime = 0;
+            startCountdownText.gameObject.SetActive(false);
+            canBeSelected = true;
+            countDownTimerIsRunning = true;
+        }
+
+
+
+        #endregion
+
         #region Calculating Items in Calcs List
+
         foreach (string item in calcs)
         {
             calcsString = string.Join("", calcs.ToArray());
@@ -605,6 +777,7 @@ public class GameManager : MonoBehaviour
         {
             calcsString = "0+0";
         }
+
         #endregion
 
         #region Update Current Counter (Based on Output from Calcs List)
@@ -614,15 +787,15 @@ public class GameManager : MonoBehaviour
         {
             currentCounter.text = "???";
             newCurrentCounter.text = "???";
-            
         }
-        
+
         else if (output != 0)
         {
             if (newCurrentTextFading)
             {
                 StopCoroutine(fadeTextInOut());
             }
+
             if (additionMode)
             {
                 newCurrentCounter.text = (playerNumber + output).ToString();
@@ -631,7 +804,7 @@ public class GameManager : MonoBehaviour
             {
                 newCurrentCounter.text = (playerNumber - output).ToString();
             }
-            
+
             if (newCurrentCounter.text == "0")
             {
                 newCurrentCounter.color = goldColor;
@@ -640,7 +813,7 @@ public class GameManager : MonoBehaviour
             {
                 newCurrentCounter.color = newCurrentColor;
             }
-            
+
             //StartCoroutine(fadeTextInOut());
         }
         else
@@ -654,183 +827,84 @@ public class GameManager : MonoBehaviour
         {
             currentCounter.text = playerNumber.ToString();
         }
-        #endregion
 
-        #region BG Flash Triggers
-        //Change BG color during event
-        if (flashObj != null)
-        {
-            //Player very close to goal
-            if (playerNumber == 1 || playerNumber == -1)
-            {
-                StopCoroutine(RedFlash());
-                StopCoroutine(GreenFlash());
-                StartCoroutine(RapidGreenFlash());
-            }
-            
-            else if (playerNumber <= 3 && playerNumber > -3 && playerNumber != 0)
-            {
-                StopCoroutine(RapidGreenFlash());
-                StopCoroutine(RedFlash());
-                StartCoroutine(GreenFlash());
-            }
-
-            //Player falling far below target
-            else if (playerNumber <= -3 && playerNumber != 0)
-            {
-                StopCoroutine(RapidGreenFlash());
-                StopCoroutine(GreenFlash());
-                StartCoroutine(RedFlash());
-            }
-
-            else if ((playerNumber >= -3 && playerNumber != 0) || playerNumber == 0)
-            {
-                StopCoroutine(RapidGreenFlash());
-                StopCoroutine(GreenFlash());
-                StopCoroutine(RedFlash());
-                StartCoroutine(NullFlash());
-            }
-        }
-        #endregion
-
-        #region Add Point Flags
-        if (currentCountdownTime < 30 && scoreAddFlag)
-        {
-            AddPoints(100);
-        }
-
-        if (currentCountdownTime >= 30 && currentCountdownTime < 60 && scoreAddFlag)
-        {
-            AddPoints(150);
-        }
-
-        if (currentCountdownTime >= 60 && currentCountdownTime < 90 && scoreAddFlag)
-        {
-            AddPoints(200);
-        }
-
-        if (currentCountdownTime >= 90 && currentCountdownTime < 120 && scoreAddFlag)
-        {
-            AddPoints(250);
-        }
-
-        if (currentCountdownTime >= 120 && scoreAddFlag)
-        {
-            AddPoints(350);
-        }
-
-        playerScoreText.text = playerScore.ToString("00000");
-        #endregion
-
-        #region Gasp Triggers
-        //Play low pitch gasping sound if close
-        if (playerNumber == 3 || playerNumber == - 3)
-        {   if (!haveGasped)
-            {
-                SFXSource.PlayOneShot(audienceGaspFar, 0.7f);
-                haveGasped = true;
-            }
-        }
-        
-        //Play high pitch gasping sound if very close
-        if (playerNumber == 1 || playerNumber == - 1)
-        {   if (!haveGasped)
-            {
-                SFXSource.PlayOneShot(audienceGaspClose, 0.7f);
-                haveGasped = true;
-            }
-        }
         #endregion
 
         #region Activate Countdown Time
-        if(currentCountdownTime > 0)
+
+        if (countDownTimer >= 0)
         {
-            if (countdownTimerIsRunning)
+            if (countDownTimerIsRunning)
             {
-                currentCountdownTime -= Time.deltaTime;
-                DisplayTime(currentCountdownTime, timerText);
+                if (gameMode != GameMode.Level4)
+                {
+                    countDownTimer -= Time.deltaTime;
+                }
+                else
+                {
+                    countDownTimer += Time.deltaTime;
+                }
+                
+                DisplayTime(countDownTimer, timerText);
             }
         }
-        
+
         else
         {
-            timerText.text = "00:00:0"; 
-            countdownTimerIsRunning = false;
+            timerText.text = "00:00:0";
+            countDownTimerIsRunning = false;
         }
-        #endregion
 
-        #region Time Bonus Triggers
-        if (scoreAddFlag)
-        {
-            if (equationCounter <= 2)
-            {
-                AddTime(5);
-            }
-
-            else if (equationCounter == 3)
-            {
-                AddTime(3);
-            }
-
-            else if (equationCounter == 4)
-            {
-                AddTime(1);
-            }
-            
-            equationCounter = 0;
-        }
         #endregion
 
         #region Countdown Sound Triggers
-        if (currentCountdownTime <= 10 && !countDownSoundActive)
+
+        if (countDownTimer <= 10 && !countDownSoundActive)
         {
-            SFXSource.PlayOneShot(FinalCountdownSound);
+            finalCountdownSource.PlayOneShot(FinalCountdownSound);
             countDownSoundActive = true;
         }
 
-        if (currentCountdownTime > 10 || !countdownTimerIsRunning)
+        if (countDownTimer > 10 || !countDownTimerIsRunning)
         {
-            SFXSource.Stop();
+            finalCountdownSource.Stop();
             countDownSoundActive = false;
         }
+
         #endregion
 
         #region Equate Button Text and Appearance Triggers
-        if (newCurrentCounter.text != "???")
+
+        if (calcs.Count == 3 || calcs.Count == 5 || calcs.Count == 7)
         {
-            if (!equateButton.enabled)
+            if ((newCurrentCounter.text != "???" && gameMode != GameMode.Level1) || gameMode == GameMode.Level1)
             {
-                if (calcs.Count == 3 || calcs.Count == 5 || calcs.Count == 7)
+                if (!equateButton.enabled)
                 {
                     equateColorBlock.selectedColor = new Color(0, 1, 0, 1);
                     equateColorBlock.pressedColor = new Color(0, 0.32f, 0.078f, 1);
                     equateColorBlock.normalColor = new Color(0, 1, 0, 1);
-                
+
                     LeanTween.rotateZ(equateButton.gameObject, 0, 0.3f);
                     equateButton.enabled = true;
                 }
             }
         }
-        else
+        else if (equateButton.enabled)
         {
-            if (equateButton.enabled)
-            {
+            equateColorBlock.selectedColor = new Color(0.68f, 0.68f, 0.68f, 1);
+            equateColorBlock.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1);
+            equateColorBlock.normalColor = new Color(0.68f, 0.68f, 0.68f, 1);
 
-                //equateButton.enabled = true;
-                equateColorBlock.selectedColor = new Color(0.68f, 0.68f, 0.68f, 1);
-                equateColorBlock.pressedColor = new Color(0.68f, 0.68f, 0.68f, 1);
-                equateColorBlock.normalColor = new Color(0.68f, 0.68f, 0.68f, 1);
-
-                LeanTween.rotateZ(equateButton.gameObject, -180, 0.3f);
-                equateButton.enabled = false;
-            }
+            LeanTween.rotateZ(equateButton.gameObject, -180, 0.3f);
+            equateButton.enabled = false;
         }
 
         if (playerNumber <= 0)
         {
             operationText.text = "+";
             equateButtonText.text = "Add";
-            additionMode = true; 
+            additionMode = true;
         }
 
         if (playerNumber > 0)
@@ -839,15 +913,16 @@ public class GameManager : MonoBehaviour
             equateButtonText.text = "Subtract";
             additionMode = false;
         }
+
         #endregion
 
         #region Game Mode Conditions
+
         //Time Trial Mode
         if (gameMode == GameMode.TimeTrial)
         {
             if (playerNumber == 0)
             {
-                scoreAddFlag = true;
                 SFXSource.PlayOneShot(GoalChange, 0.5f);
                 //var thisChangeParticle = Instantiate(ChangeParticle, gameObject.transform.position, Quaternion.identity);
                 //thisChangeParticle.transform.SetParent(null);
@@ -856,15 +931,15 @@ public class GameManager : MonoBehaviour
                 currentCounter.text = playerNumber.ToString();
             }
 
-            else
+            if (countDownTimer <= 0)
             {
-                scoreAddFlag = false;
-            }
-            //Debug.Log("triggered victory = " + triggeredVictory);
-            if(CountDownTimer <= 0 && !triggeredVictory)
-            {
-                //BGMSource.clip = VictoryBGM;
-                //StartCoroutine(DisplayResults());
+                if (!triggeredVictory)
+                {
+                    StartCoroutine(Fade.FadeIn());
+                    StartCoroutine(DisplayResults());
+                    triggeredVictory = true;
+                }
+                
 
                 if (playerScore > playerSave.bestTimeTrial)
                 {
@@ -879,7 +954,6 @@ public class GameManager : MonoBehaviour
         {
             if (playerNumber == 0)
             {
-                scoreAddFlag = true;
                 SFXSource.PlayOneShot(GoalChange, 0.5f);
                 //var thisChangeParticle = Instantiate(ChangeParticle, gameObject.transform.position, Quaternion.identity);
                 //thisChangeParticle.transform.SetParent(null);
@@ -888,15 +962,15 @@ public class GameManager : MonoBehaviour
                 currentCounter.text = playerNumber.ToString();
             }
 
-            else
+            if (countDownTimer <= 0 && !triggeredVictory)
             {
-                scoreAddFlag = false;
-            }
-            
-            if(CountDownTimer <= 0 && triggeredVictory)
-            {
-                BGMSource.clip = VictoryBGM;
                 StartCoroutine(DisplayResults());
+                
+                if (playerScore > playerSave.bestLevel1)
+                {
+                    playerSave.bestLevel1 = playerScore;
+                    playerSave.SavePlayer();
+                }
             }
         }
 
@@ -905,8 +979,10 @@ public class GameManager : MonoBehaviour
         {
             if (playerNumber == 0)
             {
-                CountMoves.moveCounter += 3;
-                CountMoves.levelCounter += 1;
+                moveCounter += 5;
+                moveCounterText.text = moveCounter.ToString();
+                
+                AddPoints(100);
                 SFXSource.PlayOneShot(GoalChange, 0.5f);
                 //var thisChangeParticle = Instantiate(ChangeParticle, gameObject.transform.position, Quaternion.identity);
                 //thisChangeParticle.transform.SetParent(null);
@@ -915,15 +991,14 @@ public class GameManager : MonoBehaviour
                 currentCounter.text = playerNumber.ToString();
             }
 
-            if (CountMoves.moveCounter <= 0 && !triggeredVictory)
+            if (moveCounter <= 0 && !triggeredVictory)
             {
-                BGMSource.clip = VictoryBGM;
                 StartCoroutine(DisplayResults());
 
-                if (CountMoves.levelCounter > playerSave.bestLevel2)
+                if (playerScore > playerSave.bestLevel2)
                 {
-                    playerSave.bestLevel2 = CountMoves.levelCounter;
-                    //SaveSystem.SavePlayer(playerSave);
+                    playerSave.bestLevel2 = playerScore;
+                    playerSave.SavePlayer();
                 }
             }
         }
@@ -931,6 +1006,17 @@ public class GameManager : MonoBehaviour
         if (gameMode == GameMode.Level3)
         {
             shuffleButtonText.text = "Shuffle: " + shuffleCounter;
+            
+            if (countDownTimer <= 0 && !triggeredVictory)
+            {
+                StartCoroutine(DisplayResults());
+                
+                if (playerScore > playerSave.bestLevel3)
+                {
+                    playerSave.bestLevel3 = playerScore;
+                    playerSave.SavePlayer();
+                }
+            }
         }
 
         //First to 1000
@@ -938,11 +1024,16 @@ public class GameManager : MonoBehaviour
         {
             if (playerNumber == 0 && !triggeredVictory)
             {
-                //BGMSource.clip = VictoryBGM;
-                //StartCoroutine(DisplayResults());
-                //Debug.Log("triggered victory = " + triggeredVictory);
+                StartCoroutine(DisplayResults());
+
+                if (countDownTimer < playerSave.bestLevel4)
+                {
+                    playerSave.bestLevel4 = countDownTimer;
+                    playerSave.SavePlayer();
+                }
             }
         }
+
         #endregion
 
         #region Adding/Removing/Conecting Blocks
@@ -959,56 +1050,89 @@ public class GameManager : MonoBehaviour
                     {
                         StartCoroutine(AddBlock(i, j));
                         canAddBlock = false;
-                        Debug.Log("spawned blocks: " + spawner.childCount);
                     }
                 }
             }
         }
 
-        if (selectedBlocks.Count >= 2 && selectedBlocks[selectedBlocks.Count - 1] != null && selectedBlocks[selectedBlocks.Count - 1].myID > 1 && selectedBlocks[selectedBlocks.Count - 1].transform.childCount < 3)
+        if (selectedBlocks.Count >= 2 && selectedBlocks[selectedBlocks.Count - 1] != null &&
+            selectedBlocks[selectedBlocks.Count - 1].transform.childCount < 3 && selectedBlocks[selectedBlocks.Count - 1].transform.localScale.x > 1.2f)
         {
-            if(selectedBlocks[selectedBlocks.Count - 1].transform.localScale.x > 1.2f)
-            {
-                Debug.Log("Draw a Line");
-                var currentLine = Instantiate(linePrefab, selectedBlocks[selectedBlocks.Count - 1].transform.position, Quaternion.identity);
-                currentLine.transform.SetParent(selectedBlocks[selectedBlocks.Count - 1].transform);
-                DrawLine currentLinePoints = currentLine.GetComponent<DrawLine>();
-                currentLinePoints.origin = selectedBlocks[selectedBlocks.Count - 1].gameObject.transform.transform;
-                currentLinePoints.destination = selectedBlocks[selectedBlocks.Count - 2].gameObject.transform.transform;
-            }
+            var currentLine = Instantiate(linePrefab, selectedBlocks[selectedBlocks.Count - 1].transform.position,
+                Quaternion.identity);
+            currentLine.transform.SetParent(selectedBlocks[selectedBlocks.Count - 1].transform);
+            DrawLine currentLinePoints = currentLine.GetComponent<DrawLine>();
+            currentLinePoints.origin = selectedBlocks[selectedBlocks.Count - 1].gameObject.transform.transform;
+            currentLinePoints.destination = selectedBlocks[selectedBlocks.Count - 2].gameObject.transform.transform;
         }
-        #endregion
     }
+
+        #endregion
 
     #region BG Flash Commands
-    private IEnumerator RedFlash()
+    private IEnumerator VioletFlash()
     {
-        flashObj.SetActive(true);
-        LeanTween.color(flashObj, Color.red, 1f).setDelay(1f);
-        LeanTween.color(flashObj, Color.clear, 1f).setDelay(1f);
-        yield return null;
-    }
-
-    private IEnumerator GreenFlash()
-    {
-        flashObj.SetActive(true);
-        LeanTween.color(flashObj, Color.green, 1f).setDelay(1f);
-        LeanTween.color(flashObj, Color.clear, 1f).setDelay(1f);
-        yield return null;
+        LeanTween.color(flashObj.gameObject, Color.magenta, 1.5f);
+        LeanTween.color(flashObj.gameObject, Color.clear, 1.5f).setDelay(1.5f);
+        yield return new WaitForSeconds(3f);
+        
+        if (currentFlash == "VioletFlash") 
+            StartCoroutine(VioletFlash());
     }
     
-    private IEnumerator RapidGreenFlash()
+    private IEnumerator RapidVioletFlash()
     {
-        flashObj.SetActive(true);
-        LeanTween.color(flashObj, Color.green, 0.5f).setDelay(0.5f);
-        LeanTween.color(flashObj, Color.clear, 1f).setDelay(1f);
-        yield return null;
+        LeanTween.color(flashObj.gameObject, Color.magenta, 1f);
+        LeanTween.color(flashObj.gameObject, Color.clear, 1f).setDelay(1f);
+        yield return new WaitForSeconds(2f);
+        
+        if (currentFlash == "RapidVioletFlash") 
+            StartCoroutine(RapidVioletFlash());
+    }
+    
+    private IEnumerator YellowFlash()
+    {
+        LeanTween.color(flashObj.gameObject, Color.yellow, 1.5f);
+        LeanTween.color(flashObj.gameObject, Color.clear, 1.5f).setDelay(1.5f);
+        yield return new WaitForSeconds(3f);
+        
+        if (currentFlash == "YellowFlash") 
+            StartCoroutine(YellowFlash());
+    }
+    
+    private IEnumerator RapidYellowFlash()
+    {
+        LeanTween.color(flashObj.gameObject, Color.yellow, 1f);
+        LeanTween.color(flashObj.gameObject, Color.clear, 1f).setDelay(1f);
+        yield return new WaitForSeconds(2f);
+        
+        if (currentFlash == "RapidYellowFlash") 
+            StartCoroutine(RapidYellowFlash());
     }
 
     private IEnumerator NullFlash()
     {
-        flashObj.SetActive(false);
+        if (flashObj.color != Color.clear)
+            LeanTween.color(flashObj.gameObject, Color.clear, 1f);
         yield return null;
     }
     #endregion
+
+    public void DEBUGIncrementFlash()
+    {
+        string[] flashes = {"YellowFlash", "RapidYellowFlash", "RapidVioletFlash", "VioletFlash", "NullFlash"};
+
+        if (flashObj != null)
+        {
+            currentFlash = flashes[debugFlashCount];
+        }
+
+        StopCoroutine(currentFlash);
+        StartCoroutine(currentFlash);
+
+        debugFlashCount++;
+
+        if (debugFlashCount >= 5)
+            debugFlashCount = 0;
+    }
 }

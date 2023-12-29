@@ -16,6 +16,6 @@ public class CopyText : MonoBehaviour
     private void Update()
     {
         myText.text = targetText.text;
-        gameObject.SetActive(myText.gameObject.activeInHierarchy);
+        gameObject.SetActive(targetText.gameObject.activeInHierarchy);
     }
 }

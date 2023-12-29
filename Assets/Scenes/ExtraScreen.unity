@@ -608,7 +608,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -832,7 +832,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -225.99982}
+  m_AnchoredPosition: {x: 0, y: -188.99982}
   m_SizeDelta: {x: 1077.8, y: 201.69995}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &721340658
@@ -848,7 +848,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.81476784, g: 0, b: 1, a: 1}
+  m_Color: {r: 0.988555, g: 0.9379048, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1016,7 +1016,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Trash Attack
+  m_Text: '  Block Busters'
 --- !u!222 &866257603
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1118,7 +1118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96a2cd7e80b76ed4e8026ad8b582e401, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  thisBestScore: 0
+  thisBestScore: 1
 --- !u!1 &1001548714
 GameObject:
   m_ObjectHideFlags: 0
@@ -1154,7 +1154,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -15, y: -226}
+  m_AnchoredPosition: {x: -15, y: -189}
   m_SizeDelta: {x: 1077.8, y: 201.69995}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1001548716
@@ -1290,7 +1290,7 @@ GameObject:
   - component: {fileID: 1105815308}
   - component: {fileID: 1105815311}
   - component: {fileID: 1105815310}
-  - component: {fileID: 1105815309}
+  - component: {fileID: 1105815312}
   m_Layer: 5
   m_Name: BestCounter
   m_TagString: Untagged
@@ -1318,21 +1318,6 @@ RectTransform:
   m_AnchoredPosition: {x: 14.9, y: -25.199951}
   m_SizeDelta: {x: 1078.56, y: 201.69995}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1105815309
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1105815307}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bc708b484e9c0d4193e3e04bcb2bb7d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  displayBestLevel: 0
-  defaultBestLevel: 4
-  playerPref: Level4
 --- !u!114 &1105815310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1375,6 +1360,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1105815307}
   m_CullTransparentMesh: 0
+--- !u!114 &1105815312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105815307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a2cd7e80b76ed4e8026ad8b582e401, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thisBestScore: 4
 --- !u!1 &1109839492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1465,12 +1463,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1109839492}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bc708b484e9c0d4193e3e04bcb2bb7d, type: 3}
+  m_Script: {fileID: 11500000, guid: 96a2cd7e80b76ed4e8026ad8b582e401, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayBestLevel: 0
-  defaultBestLevel: 7
-  playerPref: Level2
+  thisBestScore: 2
 --- !u!1 &1139311309
 GameObject:
   m_ObjectHideFlags: 0
@@ -1511,7 +1507,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -113.00003, y: 725}
+  m_AnchoredPosition: {x: -113.00003, y: 513}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1139311311
@@ -1921,7 +1917,7 @@ GameObject:
   - component: {fileID: 1468713153}
   - component: {fileID: 1468713156}
   m_Layer: 5
-  m_Name: 1000Button
+  m_Name: 500Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1947,7 +1943,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -120.00003, y: -187}
+  m_AnchoredPosition: {x: -120.00003, y: -399}
   m_SizeDelta: {x: 177.14, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1468713153
@@ -2243,12 +2239,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1478527694}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bc708b484e9c0d4193e3e04bcb2bb7d, type: 3}
+  m_Script: {fileID: 11500000, guid: 96a2cd7e80b76ed4e8026ad8b582e401, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  displayBestLevel: 0
-  defaultBestLevel: 4
-  playerPref: Level4
+  thisBestScore: 3
 --- !u!1 &1485847233
 GameObject:
   m_ObjectHideFlags: 0
@@ -2263,7 +2257,7 @@ GameObject:
   - component: {fileID: 1485847235}
   - component: {fileID: 1485847239}
   m_Layer: 5
-  m_Name: TrashAttackButton
+  m_Name: BlockBusterButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2289,7 +2283,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -120.00003, y: 125}
+  m_AnchoredPosition: {x: -120.00003, y: -87}
   m_SizeDelta: {x: 177.14, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1485847235
@@ -2533,7 +2527,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -3, y: 247}
+  m_AnchoredPosition: {x: -3, y: 184}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1549097301
@@ -2774,7 +2768,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -12.6, y: -13.199951}
+  m_AnchoredPosition: {x: -7, y: -13.199951}
   m_SizeDelta: {x: 1078.56, y: 201.69995}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1566559876
@@ -2810,7 +2804,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Race to 1000
+  m_Text: Race from 500
 --- !u!222 &1566559877
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2939,7 +2933,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -113.00003, y: 423}
+  m_AnchoredPosition: {x: -113.00003, y: 211}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1981273452

@@ -139,16 +139,16 @@ MonoBehaviour:
   selected: 0
   lockBlock: 0
   firstSelect: 0
+  isBonusBlock: 0
   animationState: 
   myID: 0
   IDCounter: 0
   myColor: {r: 1, g: 1, b: 1, a: 1}
   breakSprites:
   - {fileID: 21300000, guid: cacdd8482e7d5e54e8c010a61a7f27a0, type: 3}
-  - {fileID: 21300000, guid: e53213466fc79ab42b5dfb42c8aa90d7, type: 3}
   - {fileID: 21300000, guid: 79733b3346c44a14586a61057a6df50d, type: 3}
-  - {fileID: 21300000, guid: aaa085ecc3e94f848b7c92b58b580234, type: 3}
   - {fileID: 21300000, guid: 97a1c74c00691004caeae94368d6cba5, type: 3}
+  breakCounter: 0
 --- !u!82 &7585844968976674664
 AudioSource:
   m_ObjectHideFlags: 0

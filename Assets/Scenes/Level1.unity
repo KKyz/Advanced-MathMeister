@@ -130,6 +130,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2268457898826304278, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
+      propertyPath: thisBestScore
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2268457899935339499, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2268457899935339499, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2268457899935339499, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 0.63120127
+      objectReference: {fileID: 0}
     - target: {fileID: 2268457900011507552, guid: deab82f62d01e7b4db18fa16a7ef8a21,
         type: 3}
       propertyPath: m_Name
@@ -195,6 +215,12 @@ PrefabInstance:
       propertyPath: gameMode
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
+      propertyPath: playerRecords
+      value: 
+      objectReference: {fileID: 4191495495570442245, guid: c3997bf37f8c5b34a9e9182163b88817,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: deab82f62d01e7b4db18fa16a7ef8a21, type: 3}
 --- !u!850595691 &2128897077

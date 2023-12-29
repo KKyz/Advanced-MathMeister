@@ -394,30 +394,36 @@ MonoBehaviour:
     m_LineSpacing: 1
   m_Text: 'Game Design By
 
-    Kayra Yorulmaz
+    K-T0WN
 
 
     Programming By
 
-    Kayra Yorulmaz
+    K-T0WN
 
 
     Sprite
     Art By
 
-    Kayra Yorulmaz
+    K-T0WN
+
+
+    Backgrounds By
+
+
+    Music By
+
+
+    Special Thanks
+
+    Paul
+
+    Lucia
 
 
 
-
-
-
-
-
-
-
-
-    Version 2.0'
+    Version
+    2.0'
 --- !u!222 &135228892
 CanvasRenderer:
   m_ObjectHideFlags: 0

@@ -37,7 +37,11 @@ public class ShowBestScore : MonoBehaviour
                bestScoreCounter.text = save.bestLevel3.ToString("00000");
                break;
            case bestScore.Level4:
-               bestScoreCounter.text = save.bestLevel4.ToString("00000");
+               float minutes = Mathf.FloorToInt(save.bestLevel4 / 60); 
+               float seconds = Mathf.FloorToInt(save.bestLevel4 % 60);
+               float milliSeconds = (save.bestLevel4 % 1) * 1000;
+
+               bestScoreCounter.text = string.Format("{0:00}:{1:00}:{2:0}", minutes, seconds, milliSeconds);
                break;
         }
     }

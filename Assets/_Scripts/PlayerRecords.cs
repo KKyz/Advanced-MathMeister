@@ -7,8 +7,8 @@ public class PlayerRecords : MonoBehaviour
     public int bestLevel1;
     public int bestLevel2;
     public int bestLevel3;
-    public int bestLevel4;
-    public float bestTimeTrial;
+    public float bestLevel4;
+    public int bestTimeTrial;
     
     void Awake()
     {
@@ -18,11 +18,11 @@ public class PlayerRecords : MonoBehaviour
         //Set initial scores if no save is present
         if (!SaveSystem.SaveCheck(this))
         {
-            bestTimeTrial = 1000;
-            bestLevel1 = 1000;
-            bestLevel2 = 1000;
-            bestLevel3 = 1000;
-            bestLevel4 = 1000;
+            bestTimeTrial = 500;
+            bestLevel1 = 400;
+            bestLevel2 = 600;
+            bestLevel3 = 550;
+            bestLevel4 = 120f;
             
             SavePlayer();
         }

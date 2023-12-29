@@ -157,9 +157,9 @@ RectTransform:
   m_Father: {fileID: 1523817924}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 218.99995, y: -266.23083}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -321.00006, y: -226}
   m_SizeDelta: {x: 960, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &21886546
@@ -319,9 +319,9 @@ RectTransform:
   m_Father: {fileID: 1523817924}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -123, y: -503}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 446, y: -448.00006}
   m_SizeDelta: {x: 807.56396, y: 480.3832}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &143968185
@@ -513,8 +513,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04b9bad174117c4a8bd125e04d69b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClickEffect: {fileID: 6844927047412852918, guid: c73b217b3dd497044976a82544547707,
-    type: 3}
 --- !u!114 &249451508
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -734,9 +732,9 @@ RectTransform:
   m_Father: {fileID: 1523817924}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -131.41211, y: -503.00006}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 437.58795, y: -448.00006}
   m_SizeDelta: {x: 807.56396, y: 480.3832}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &314791799
@@ -752,7 +750,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0.8677144, a: 1}
+  m_Color: {r: 0.92558336, g: 0, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -929,7 +927,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -239.00005, y: -192.23071}
+  m_AnchoredPosition: {x: -239.00006, y: -172}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &454758353
@@ -1050,8 +1048,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04b9bad174117c4a8bd125e04d69b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClickEffect: {fileID: 6844927047412852918, guid: c73b217b3dd497044976a82544547707,
-    type: 3}
 --- !u!1 &466151174
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,8 +1101,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04b9bad174117c4a8bd125e04d69b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClickEffect: {fileID: 6844927047412852918, guid: c73b217b3dd497044976a82544547707,
-    type: 3}
 --- !u!114 &466151180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1234,7 +1228,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &725071796
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1268,8 +1262,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04b9bad174117c4a8bd125e04d69b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClickEffect: {fileID: 6844927047412852918, guid: c73b217b3dd497044976a82544547707,
-    type: 3}
 --- !u!114 &725071798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1277,7 +1269,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 725071795}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6f6fce2113c7ba0448ba1cca4358fd8a, type: 3}
   m_Name: 
@@ -1679,9 +1671,9 @@ RectTransform:
   m_Father: {fileID: 1523817924}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -26.000038, y: 803.0001}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -26.000038, y: -313.00006}
   m_SizeDelta: {x: 960, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &929396460
@@ -1761,9 +1753,9 @@ RectTransform:
   m_Father: {fileID: 1523817924}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 228.99994, y: -266.23083}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -311.00006, y: -226.00006}
   m_SizeDelta: {x: 960, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1052385864
@@ -2022,8 +2014,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04b9bad174117c4a8bd125e04d69b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClickEffect: {fileID: 6844927047412852918, guid: c73b217b3dd497044976a82544547707,
-    type: 3}
 --- !u!82 &1238074579
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2502,8 +2492,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04b9bad174117c4a8bd125e04d69b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClickEffect: {fileID: 6844927047412852918, guid: c73b217b3dd497044976a82544547707,
-    type: 3}
 --- !u!1 &1510826325
 GameObject:
   m_ObjectHideFlags: 0
@@ -2537,9 +2525,9 @@ RectTransform:
   m_Father: {fileID: 1523817924}
   m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -26.000038, y: 803.0001}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -26.000038, y: -313.00006}
   m_SizeDelta: {x: 960, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1510826327
@@ -2727,8 +2715,8 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 24300002, guid: 69a3da3dfc94bc1438bf945631ad0a0e,
     type: 2}
-  m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 0
+  m_audioClip: {fileID: 8300000, guid: 168c14b908902da42bc3b06ee10892a6, type: 3}
+  m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
   Loop: 1
@@ -3046,7 +3034,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Made By Kayra Yorulmaz \xA9 2021, 2023\n"
+  m_Text: "Made By KTWN\xA9 2021, 2023\n"
 --- !u!222 &1771793056
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3300,8 +3288,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f04b9bad174117c4a8bd125e04d69b33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ClickEffect: {fileID: 6844927047412852918, guid: c73b217b3dd497044976a82544547707,
-    type: 3}
 --- !u!1 &1921613748
 GameObject:
   m_ObjectHideFlags: 0
