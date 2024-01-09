@@ -213,6 +213,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
         type: 3}
+      propertyPath: LevelBGM
+      value: 
+      objectReference: {fileID: 8300000, guid: aeb69950dd4df1044a3849a2bfd3cddc, type: 3}
+    - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
+      propertyPath: gameMode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
       propertyPath: Blocks.Array.data[2]
       value: 
       objectReference: {fileID: 3651115926236249295, guid: dd19b6225057df44aa33384827200da1,

@@ -31,9 +31,8 @@ public class Fade : MonoBehaviour
 
     public static IEnumerator FadeIn()
     {
-        LeanTween.alpha(fadeColor.rectTransform, 1f, 1f).setEase(LeanTweenType.linear); 
+        LeanTween.alpha(fadeColor.rectTransform, 1f, 1f); 
         fadeBlock.blocksRaycasts = true;
-        Debug.Log("FadeIn");
         yield return 0;
     }
 
@@ -59,7 +58,6 @@ public class Fade : MonoBehaviour
         LeanTween.alpha(fadeColor.rectTransform, 0f, 0.5f).setEase(LeanTweenType.linear);
 
         fadeBlock.blocksRaycasts = false;
-
         yield return 0;
     }
 }

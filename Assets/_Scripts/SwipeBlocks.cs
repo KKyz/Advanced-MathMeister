@@ -1,4 +1,4 @@
-﻿﻿using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -193,17 +193,22 @@ public class SwipeBlocks : MonoBehaviour,  IPointerEnterHandler, IPointerExitHan
 
     public IEnumerator ReduceBreakCounter()
     {
+        Debug.Log("Breaking Block");
         int randomInt = 2;
         //if a move has been made in level 4, reduce break counter until block breaks
 
         yield return new WaitForSeconds(0.15f);
 
-        if (breakCounter > 1)
+        if (breakCounter >= 1)
         {
             breakCounter--;
+        }
+
+        if (breakCounter > 0)
+        {
             spriteRenderer.sprite = breakSprites[breakCounter - 1];
         }
-        
+
         if (breakCounter <= 0)
         {
             while (randomInt == 2)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using B83.LogicExpressionParser;
@@ -17,7 +18,8 @@ public enum GameMode
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Game Settings")] public int minTarget;
+    [Header("Game Settings")] 
+    public int minTarget;
     public int maxTarget;
     public GameMode gameMode;
     public int playerNumber;
@@ -25,15 +27,16 @@ public class GameManager : MonoBehaviour
     public int width;
     public int height;
 
-    public SpriteRenderer flashObj;
+    [Header("Particles")]
+    public GameObject goalParticle;
+    public GameObject sparkleParticle; 
+    public GameObject explosionParticle;
 
-    //public GameObject ChangeParticle;
-    //public GameObject sparkleParticle; 
-    //public GameObject explosionParticle;
     public GameObject tilePrefab;
     public GameObject linePrefab;
-    public GameObject destroyParticle;
     public GameObject playerRecords;
+    
+    
 
     public GameObject[] Blocks;
     public SwipeBlocks[,] allBlocks;
@@ -62,8 +65,8 @@ public class GameManager : MonoBehaviour
     [HideInInspector] public float bestTimeTrial;
     [HideInInspector] public Transform spawner;
 
-    private bool canShuffle, countDownSoundActive, triggeredVictory, newCurrentTextFading;
-    [SerializeField] private bool additionMode;
+    private bool canShuffle, countDownSoundActive, newCurrentTextFading;
+    [SerializeField] private bool additionMode, triggeredVictory;
     private AudioSource SFXSource, finalCountdownSource;
     private Button shuffleButton, equateButton, trashButton;
     private string currentFlash;
@@ -101,6 +104,8 @@ public class GameManager : MonoBehaviour
     private NumberExpression numExpression;
     private PlayerRecords playerSave;
     private int debugFlashCount = 0;
+    private int debugParticleCount = 0;
+    private SpriteRenderer flashObj;
 
     void Awake()
     {
@@ -407,7 +412,7 @@ public class GameManager : MonoBehaviour
                 AddAllBlocks();
                 StartCoroutine(RefreshShuffle());
 
-                if (gameMode == GameMode.Level4)
+                if (gameMode == GameMode.Level3)
                 {
                     shuffleCounter -= 1;
                 }
@@ -487,7 +492,7 @@ public class GameManager : MonoBehaviour
                 
             }
 
-            if (gameMode == GameMode.TimeTrial)
+            if (gameMode != GameMode.Level4)
             {
                 foreach (var block in selectedBlocks)
                 {
@@ -498,6 +503,41 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            
+            //Identify rows in which blocks will break in Level3
+            if (gameMode == GameMode.Level3)
+            {
+                foreach (var breakBlock in allBlocks)
+                {
+                    if (breakBlock != null && breakBlock.myString == "")
+                    {
+                        StartCoroutine(breakBlock.ReduceBreakCounter());
+                    }
+                }
+                
+                List<Char> breakColumns = new();
+                foreach (var block in selectedBlocks)
+                {
+                    breakColumns.Add(block.name[3]);
+                }
+                
+                //Debug.Log($"[{string.Join(",", breakColumns)}]");
+
+                /*foreach (var breakBlock in allBlocks)
+                {
+                    if (breakBlock != null && breakBlock.myString == "")
+                    {
+                        foreach (var column in breakColumns)
+                        {
+                            if (breakBlock.name[3] == column)
+                            {
+                                StartCoroutine(breakBlock.ReduceBreakCounter());
+                            }
+                        }
+                    }
+                }*/
+            }
+
             //Aims to destroy all objects in selectedBlocks
             DeleteSelectedBlocks();
 
@@ -506,23 +546,6 @@ public class GameManager : MonoBehaviour
 
             SFXSource.PlayOneShot(equateSound, 0.7f);
             newCurrentCounter.text = "???";
-
-            // For level 3, reduce break counter if column changes
-            foreach (var block in allBlocks)
-            {
-                //If there is a breakable block, check if the column has moved
-                if (block != null && block.myString == "")
-                {
-                    Debug.Log(block.name);
-                    for (int i = 0; i < 3; i++)
-                    {
-                        if (allBlocks[Convert.ToInt32(block.name[1]), i] != null && allBlocks[Convert.ToInt32(block.name[1]), i].isMoving)
-                        {
-                            StartCoroutine(block.ReduceBreakCounter());
-                        }
-                    }
-                }
-            }
 
             if (gameMode != GameMode.Level3)
             {
@@ -635,8 +658,10 @@ public class GameManager : MonoBehaviour
     private IEnumerator DisplayResults()
     {
         canBeSelected = false;
+        triggeredVictory = true;
         finalCountdownSource.Pause();
         BGMSource.Pause();
+        StartCoroutine(Fade.FadeIn());
         yield return new WaitForSeconds(1.5f);
         
         BGMSource.clip = VictoryBGM;
@@ -706,7 +731,6 @@ public class GameManager : MonoBehaviour
 
     public void DEBUGTriggerEnd()
     {
-        StartCoroutine(Fade.FadeIn());
         StartCoroutine(DisplayResults());
     }
 
@@ -723,9 +747,9 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            if (!countDownTimerIsRunning)
+            if (!countDownTimerIsRunning && startCountdownText.gameObject.activeInHierarchy)
                 StartCoroutine(Fade.SemiFadeOut());
-
+            
             countDownTimerIsRunning = true;
             startCountDownTime = 0;
             startCountdownText.gameObject.SetActive(false);
@@ -859,7 +883,7 @@ public class GameManager : MonoBehaviour
 
         #region Countdown Sound Triggers
 
-        if (countDownTimer <= 10 && !countDownSoundActive)
+        if (countDownTimer <= 10 && !countDownSoundActive && gameMode != GameMode.Level4)
         {
             finalCountdownSource.PlayOneShot(FinalCountdownSound);
             countDownSoundActive = true;
@@ -935,9 +959,7 @@ public class GameManager : MonoBehaviour
             {
                 if (!triggeredVictory)
                 {
-                    StartCoroutine(Fade.FadeIn());
                     StartCoroutine(DisplayResults());
-                    triggeredVictory = true;
                 }
                 
 
@@ -958,7 +980,8 @@ public class GameManager : MonoBehaviour
                 //var thisChangeParticle = Instantiate(ChangeParticle, gameObject.transform.position, Quaternion.identity);
                 //thisChangeParticle.transform.SetParent(null);
                 //Destroy(thisChangechangeParticle, 2f);
-                playerNumber = Random.Range(minTarget, maxTarget);
+                while (playerNumber == 0) 
+                    playerNumber = Random.Range(minTarget, maxTarget);
                 currentCounter.text = playerNumber.ToString();
             }
 
@@ -987,7 +1010,8 @@ public class GameManager : MonoBehaviour
                 //var thisChangeParticle = Instantiate(ChangeParticle, gameObject.transform.position, Quaternion.identity);
                 //thisChangeParticle.transform.SetParent(null);
                 //Destroy(thisChangeParticle, 2f);
-                playerNumber = Random.Range(minTarget, maxTarget);
+                while (playerNumber == 0) 
+                    playerNumber = Random.Range(minTarget, maxTarget);
                 currentCounter.text = playerNumber.ToString();
             }
 
@@ -1005,6 +1029,17 @@ public class GameManager : MonoBehaviour
 
         if (gameMode == GameMode.Level3)
         {
+            if (playerNumber == 0)
+            {
+                SFXSource.PlayOneShot(GoalChange, 0.5f);
+                //var thisChangeParticle = Instantiate(ChangeParticle, gameObject.transform.position, Quaternion.identity);
+                //thisChangeParticle.transform.SetParent(null);
+                //Destroy(thisChangechangeParticle, 2f);
+                while (playerNumber == 0) 
+                    playerNumber = Random.Range(minTarget, maxTarget);
+                currentCounter.text = playerNumber.ToString();
+            }
+            
             shuffleButtonText.text = "Shuffle: " + shuffleCounter;
             
             if (countDownTimer <= 0 && !triggeredVictory)
@@ -1117,6 +1152,20 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
     #endregion
+
+    public void DEBUGTestParticles()
+    {
+        GameObject[] particles = {goalParticle, sparkleParticle, explosionParticle};
+
+        debugParticleCount++;
+
+        if (debugParticleCount > 2)
+            debugParticleCount = 0;
+        
+        GameObject currentParticle = Instantiate(particles[debugParticleCount], transform);
+        currentParticle.transform.position = transform.Find("BGCanvas").Find("StartCountdown").position;
+        Destroy(currentParticle, 2f);
+    }
 
     public void DEBUGIncrementFlash()
     {

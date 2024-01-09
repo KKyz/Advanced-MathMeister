@@ -213,6 +213,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
         type: 3}
+      propertyPath: LevelBGM
+      value: 
+      objectReference: {fileID: 8300000, guid: a9571c02d461d554da81a3a943589170, type: 3}
+    - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
       propertyPath: gameMode
       value: 2
       objectReference: {fileID: 0}
