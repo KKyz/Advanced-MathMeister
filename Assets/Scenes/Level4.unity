@@ -135,6 +135,16 @@ PrefabInstance:
       propertyPath: thisBestScore
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 2268457899421681509, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
+      propertyPath: m_Text
+      value: 'Runs Left:'
+      objectReference: {fileID: 0}
+    - target: {fileID: 2268457899424472589, guid: deab82f62d01e7b4db18fa16a7ef8a21,
+        type: 3}
+      propertyPath: m_Text
+      value: 'Runs Left:'
+      objectReference: {fileID: 0}
     - target: {fileID: 2268457899935339499, guid: deab82f62d01e7b4db18fa16a7ef8a21,
         type: 3}
       propertyPath: m_Color.b
@@ -223,12 +233,12 @@ PrefabInstance:
     - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
         type: 3}
       propertyPath: maxTarget
-      value: 500
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
         type: 3}
       propertyPath: minTarget
-      value: 500
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8447934715590139011, guid: deab82f62d01e7b4db18fa16a7ef8a21,
         type: 3}

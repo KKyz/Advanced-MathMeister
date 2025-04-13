@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using B83.LogicExpressionParser;
+using Unity.Mathematics;
 using Random=UnityEngine.Random;
 
 public enum GameMode
@@ -92,7 +93,7 @@ public class GameManager : MonoBehaviour
     private SwipeBlocks swipeBlocks;
     private AudioSource BGMSource;
     private float musicPos, timeLimit, startCountDownTime;
-    private int equationCounter, shuffleCounter, playerScore, moveCounter;
+    private int equationCounter, shuffleCounter, playerScore, moveCounter, moveCounterAdd, sprintCounter;
     private GameObject CPUTrashLevelText, resultsCanvas;
 
     [SerializeField] private int shuffleCooldown;
@@ -124,7 +125,9 @@ public class GameManager : MonoBehaviour
         equationCounter = 0;
         shuffleCounter = 5;
         shuffleCooldown = 3;
-        moveCounter = 10;
+        moveCounter = 6;
+        moveCounterAdd = 4;
+        sprintCounter = 5;
         startCountDownTime = 4f;
         spawner = transform.Find("Spawner");
         shuffleButton = transform.Find("ButtonCanvas").Find("ShuffleButton").GetComponent<Button>();
@@ -183,12 +186,6 @@ public class GameManager : MonoBehaviour
         playerScoreText = transform.Find("LabelCanvas").Find("ScoreCounter").GetComponent<Text>();
         playerScoreLabel = transform.Find("LabelCanvas").Find("ScoreLabel").GetComponent<Text>();
 
-        if (gameMode == GameMode.Level4)
-        {
-            playerScoreText.gameObject.SetActive(false);
-            playerScoreLabel.gameObject.SetActive(false);
-        }
-
         canAddBlock = true;
         canBeSelected = false;
         allBlocks = new SwipeBlocks[width, height];
@@ -214,6 +211,7 @@ public class GameManager : MonoBehaviour
         if (gameMode == GameMode.Level4)
         {
             timerLabel.text = "Timer: ";
+            playerScoreText.text = sprintCounter.ToString();
         }
 
         StartCoroutine(RefreshShuffle());
@@ -1002,9 +1000,14 @@ public class GameManager : MonoBehaviour
         {
             if (playerNumber == 0)
             {
-                moveCounter += 5;
+                moveCounter += moveCounterAdd;
                 moveCounterText.text = moveCounter.ToString();
-                
+
+                if (moveCounterAdd > 1)
+                {
+                    moveCounterAdd--;
+                }
+
                 AddPoints(100);
                 SFXSource.PlayOneShot(GoalChange, 0.5f);
                 //var thisChangeParticle = Instantiate(ChangeParticle, gameObject.transform.position, Quaternion.identity);
@@ -1054,17 +1057,29 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        //First to 1000
+        //5 Sprint
         if (gameMode == GameMode.Level4)
         {
-            if (playerNumber == 0 && !triggeredVictory)
+            if (playerNumber == 0)
             {
-                StartCoroutine(DisplayResults());
-
-                if (countDownTimer < playerSave.bestLevel4)
+                if (sprintCounter > 0)
                 {
-                    playerSave.bestLevel4 = countDownTimer;
-                    playerSave.SavePlayer();
+                    sprintCounter--;
+                    playerScoreText.text = sprintCounter.ToString();
+                    
+                    while (playerNumber == 0) 
+                        playerNumber = Random.Range(minTarget, maxTarget);
+                    currentCounter.text = playerNumber.ToString();
+                }
+                else if (!triggeredVictory)
+                {
+                    StartCoroutine(DisplayResults());
+
+                    if (countDownTimer < playerSave.bestLevel4)
+                    {
+                        playerSave.bestLevel4 = countDownTimer;
+                        playerSave.SavePlayer();
+                    }
                 }
             }
         }

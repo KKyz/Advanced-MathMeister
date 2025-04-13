@@ -1917,7 +1917,7 @@ GameObject:
   - component: {fileID: 1468713153}
   - component: {fileID: 1468713156}
   m_Layer: 5
-  m_Name: 500Button
+  m_Name: 5SprintButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2768,7 +2768,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -7, y: -13.199951}
+  m_AnchoredPosition: {x: -27.5, y: -13.199951}
   m_SizeDelta: {x: 1078.56, y: 201.69995}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1566559876
@@ -2804,7 +2804,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Race from 500
+  m_Text: 5 Sprint
 --- !u!222 &1566559877
 CanvasRenderer:
   m_ObjectHideFlags: 0

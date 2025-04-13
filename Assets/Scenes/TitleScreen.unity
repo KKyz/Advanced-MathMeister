@@ -3122,7 +3122,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Made By K-T0WN\xA9 2021, 2024\n"
+  m_Text: "Made By K-T0WN\xA9 2021, 2025\n"
 --- !u!222 &1771793056
 CanvasRenderer:
   m_ObjectHideFlags: 0
